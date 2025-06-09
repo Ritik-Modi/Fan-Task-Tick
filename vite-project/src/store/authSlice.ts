@@ -9,7 +9,8 @@ interface User {
     email: string;
     phone: string;
     accountType: 'user' | 'admin';
-    profile?: string;
+    otp: string
+    // profile?: string;
 }
 
 interface AuthState {
@@ -34,10 +35,10 @@ export const sendOTP = createAsyncThunk('auth/sendOtp', async (email: string, th
     }
 });
 
-export const signUP = createAsyncThunk<User, string>('auth/signUp', async (data, thunkAPI) => {
+export const signUP = createAsyncThunk<{ user: User; token: string }, string>('auth/signUp', async (data, thunkAPI) => {
     try {
         const res = await axios.post(authEndpoints.signUp, data);
-        return res.data.user;
+        return res.data;
     } catch (error) {
         return thunkAPI.rejectWithValue(handleAxiosError(error));
     }
@@ -92,8 +93,11 @@ const authSlice = createSlice({
             })
             .addCase(signUP.fulfilled, (state, action) => {
                 state.loading = false;
-                state.user = action.payload;
+                state.user = action.payload.user;
+                state.token = action.payload.token;
                 localStorage.setItem('authUser', JSON.stringify(action.payload));
+                localStorage.setItem('authToken', action.payload.token);
+
             })
             .addCase(signUP.rejected, (state, action) => {
                 state.loading = false;

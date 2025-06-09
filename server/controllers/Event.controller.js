@@ -4,13 +4,46 @@ import User from "../models/User.model.js";
 import mongoose from "mongoose";
 
 const getAllEvents = async (req, res) => {
-    try {
-        const events = await Event.find().populate("genreIds");
-        res.status(200).json(events);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-}
+  try {
+    const eventsWithPrices = await Event.aggregate([
+      {
+        $lookup: {
+          from: "tickets",
+          localField: "_id",
+          foreignField: "eventId",
+          as: "tickets",
+        },
+      },
+      {
+        $addFields: {
+          minTicketPrice: {
+            $cond: [
+              { $gt: [{ $size: "$tickets" }, 0] },
+              { $min: "$tickets.price" },
+              null,
+            ],
+          },
+        },
+      },
+      {
+        $project: {
+          tickets: 0, // we don’t need full ticket details in this response
+        },
+      },
+    ]);
+
+    // Populate genreIds (since aggregation breaks normal .populate())
+    const populatedEvents = await Event.populate(eventsWithPrices, {
+      path: "genreIds",
+    });
+
+    res.status(200).json(populatedEvents);
+  } catch (error) {
+    console.error("Error in getAllEvents:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
 const getEventById = async (req, res) => {
    
     try {

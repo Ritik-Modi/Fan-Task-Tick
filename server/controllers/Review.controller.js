@@ -1,5 +1,5 @@
 import User from "../models/User.model.js";
-import ReviewVenue from "../models/ReviewVenue.model.js";
+import Review from "../models/Review.model.js";
 import Event from "../models/Event.model.js";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
@@ -8,30 +8,21 @@ dotenv.config();
 
 const createReview = async (req, res) => {
     try {
-        const { review, rating } = req.body;
-        const eventId = req.params.eventId;
+        const {  review, rating } = req.body;
+        // const eventId = req.params.eventId;
         const userId = req.user.id; // Get from authentication middleware
         
         if (!review || !rating) {
             return res.status(400).json({ message: "Review and rating are required" });
         }
+
         
-        if (!mongoose.Types.ObjectId.isValid(eventId)) {
-            return res.status(400).json({ message: "Invalid event ID" });
-        }
-        
-        // Verify event exists
-        const event = await Event.findById(eventId);
-        if (!event) {
-            return res.status(404).json({ message: "Event not found" });
-        }
         
         // Create review
-        const newReview = await ReviewVenue.create({
-            userId,
-            eventId,
+        const newReview = await Review.create({
             review,
-            rating
+            rating,
+            userId
         });
         
         res.status(201).json({
@@ -47,19 +38,12 @@ const createReview = async (req, res) => {
 
 const getReviews = async (req, res) => {
     try {
-        const eventId = req.params.eventId;
         
-        if (!mongoose.Types.ObjectId.isValid(eventId)) {
-            return res.status(400).json({ message: "Invalid event ID" });
+        const reviews = await Review.find().populate("userId" , "fullName");
+
+        if(!reviews){
+            return res.status(400).json({massage: "There are No Review till Now"})
         }
-        
-        // Verify event exists
-        const event = await Event.findById(eventId);
-        if (!event) {
-            return res.status(404).json({ message: "Event not found" });
-        }
-        
-        const reviews = await ReviewVenue.find({ eventId }).populate("userId", "fullName email");
         
         res.status(200).json({
             success: true,
@@ -74,7 +58,7 @@ const getReviews = async (req, res) => {
 
 const deleteReview = async (req, res) => {
     try {
-        const eventId = req.params.eventId;
+        
         const reviewId = req.params.reviewId;
         const userId = req.user.id;
         
@@ -83,7 +67,7 @@ const deleteReview = async (req, res) => {
         }
         
         // Find review and check if user is authorized to delete
-        const review = await ReviewVenue.findOne({ _id: reviewId, eventId });
+        const review = await Review.findOne({ _id: reviewId });
         
         if (!review) {
             return res.status(404).json({ message: "Review not found" });
@@ -95,7 +79,7 @@ const deleteReview = async (req, res) => {
             return res.status(403).json({ message: "You are not authorized to delete this review" });
         }
         
-        await ReviewVenue.findByIdAndDelete(reviewId);
+        await Review.findByIdAndDelete(reviewId);
         
         res.status(200).json({ 
             success: true,

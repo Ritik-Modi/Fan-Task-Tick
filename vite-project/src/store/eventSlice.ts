@@ -17,7 +17,9 @@ interface Event {
   startDate: string;
   endDate: string;
   genreIds: Genre[];
+  minTicketPrice?: number; // ✅ Add this line
 }
+
 
 interface EventState {
   events: Event[];
@@ -33,14 +35,17 @@ const initialState: EventState = {
   error: null,
 };
 
-export const fetchAllEvents = createAsyncThunk('event/fetchAllEvents', async (_, thunkAPI) => {
-  try {
-    const response = await axios.get(eventEndpoints.getAllEvents);
-    return response.data;
-  } catch (error) {
-    return thunkAPI.rejectWithValue(handleAxiosError(error));
+export const fetchAllEvents = createAsyncThunk(
+  'event/fetchAllEvents',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(eventEndpoints.getAllEvents);
+      return response.data; // ✅ must return this
+    } catch (error) {
+      return rejectWithValue(handleAxiosError(error));
+    }
   }
-});
+);
 
 export const fetchEventById = createAsyncThunk<Event, string>('event/fetchEventById', async (id, thunkAPI) => {
   try {

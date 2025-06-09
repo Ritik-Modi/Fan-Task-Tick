@@ -1,4 +1,6 @@
-const BASE_URL = "/api/v1";
+
+
+const BASE_URL = "/api/v1"; 
 
 const withParams = (endpoint: string, params: Record<string, string | number>): string => {
   return Object.entries(params).reduce(
@@ -60,12 +62,10 @@ export const ticketEndpoints = {
 
 // --------- Review Endpoints ---------
 export const reviewEndpoints = {
-  getReview: (eventId: string) =>
-    withParams(`${BASE_URL}/event/:eventId/review/getReview`, { eventId }),
-  createReview: (eventId: string) =>
-    withParams(`${BASE_URL}/event/:eventId/review/create-review`, { eventId }),
-  deleteReview: (eventId: string, reviewId: string) =>
-    withParams(`${BASE_URL}/event/:eventId/review/deleteReview/:reviewId`, { eventId, reviewId }),
+  getReview: `${BASE_URL}/review/getReview`,
+  createReview: `${BASE_URL}/review/create-review`,
+  deleteReview: ( reviewId: string) =>
+    withParams(`${BASE_URL}/event/:eventId/review/deleteReview/:reviewId`, { reviewId }),
 };
 
 // --------- Payment Endpoints ---------

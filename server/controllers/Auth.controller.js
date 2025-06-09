@@ -91,25 +91,41 @@ const signUp = async (req, res) => {
       return res.status(400).json({ success: false, message: "Invalid OTP" });
     }
 
-    const profileDetails = await Profile.create({
-      dob: null,
-      venue: null,
-      genre: [],
-    });
-    console.log("Profile created:", profileDetails);
-
+    
     const user = await User.create({
       fullName,
       email,
       phone,
-      profile: profileDetails._id,
       accountType: "user",
     });
+
+    const payload = {
+      id: user._id,
+      email: user.email,
+      phone: user.phone,
+      accountType: user.accountType,
+    };
+
+    const token = jwt.sign(payload, process.env.JWT_SECRET, {
+      expiresIn: "24h",
+    });
+
+    // DEBUG: Log the generated token for debugging purposes
+    console.log("JWT Token in signin controller:", token);
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 3 * 24 * 60 * 60 * 1000, // 1 day
+    });
+    res.setHeader("Authorization", `Bearer ${token}`);
 
     return res.status(201).json({
       success: true,
       message: "User created successfully",
       user,
+      token,
     });
   } catch (error) {
     console.error("Error signing up:", error.message);

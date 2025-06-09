@@ -5,8 +5,7 @@ import { handleAxiosError } from '../utils/handleAxiosError';
 import { reviewEndpoints } from '../services/api';
 interface Review {
   _id: string;
-  userId: { _id: string; fullName: string; email: string };
-  eventId: string;
+  userId: { _id: string; fullName: string;};
   review: string;
   rating: number;
   createdAt: string;
@@ -25,11 +24,11 @@ const initialState: ReviewState = {
 };
 
 // 🔹 Fetch all reviews
-export const getReviews = createAsyncThunk<Review[], string>(
+export const getReviews = createAsyncThunk(
   'review/getReviews',
-  async (eventId, thunkAPI) => {
+  async (_, thunkAPI) => {
     try {
-      const res = await axios.get(reviewEndpoints.getReview(eventId));
+      const res = await axios.get(reviewEndpoints.getReview);
       return res.data.reviews;
     } catch (error) {
       return thunkAPI.rejectWithValue(handleAxiosError(error));
@@ -38,11 +37,11 @@ export const getReviews = createAsyncThunk<Review[], string>(
 );
 
 // 🔹 Create a review
-export const createReview = createAsyncThunk<Review, { eventId: string; data: { review: string; rating: number } }>(
+export const createReview = createAsyncThunk<Review, { data: { review: string; rating: number } }>(
   'review/createReview',
-  async ({ eventId, data }, thunkAPI) => {
+  async ({ data }, thunkAPI) => {
     try {
-      const res = await axios.post(reviewEndpoints.createReview(eventId), data);
+      const res = await axios.post(reviewEndpoints.createReview, data);
       return res.data.review;
     } catch (error) {
       return thunkAPI.rejectWithValue(handleAxiosError(error));
@@ -51,11 +50,11 @@ export const createReview = createAsyncThunk<Review, { eventId: string; data: { 
 );
 
 // 🔹 Delete a review
-export const deleteReview = createAsyncThunk<string, { eventId: string; reviewId: string }>(
+export const deleteReview = createAsyncThunk<string, { reviewId: string }>(
   'review/deleteReview',
-  async ({ eventId, reviewId }, thunkAPI) => {
+  async ({ reviewId }, thunkAPI) => {
     try {
-      await axios.delete(reviewEndpoints.deleteReview(eventId, reviewId));
+      await axios.delete(reviewEndpoints.deleteReview(reviewId));
       return reviewId;
     } catch (error) {
       return thunkAPI.rejectWithValue(handleAxiosError(error));

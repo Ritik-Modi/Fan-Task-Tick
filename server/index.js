@@ -12,7 +12,7 @@ import eventRoutes from "./routes/Event.route.js";
 import ticketRoutes from "./routes/Ticket.route.js";
 import reviewRoutes from "./routes/Review.route.js";
 import paymentRoutes from "./routes/Payment.route.js";
-import genreRoutes from "./routes/Genre.route.js";
+import genreRoutes from "./routes/common.route.js";
 import fileUpload from "express-fileupload";
 
 
@@ -52,7 +52,7 @@ app.use("/api/v1/user", userRoutes);
 app.use("/api/v1/event", eventRoutes);
 app.use("/api/v1/genre", genreRoutes);
 app.use("/api/v1/event/:eventId/ticket", ticketRoutes);
-app.use("/api/v1/event/:eventId/review", reviewRoutes);
+app.use("/api/v1/review", reviewRoutes);
 app.use("/api/v1/ticket/:ticketId/payment", paymentRoutes);
 
 
