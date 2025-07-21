@@ -29,6 +29,9 @@ const createTicketForEvent = async (req, res) => {
       endSession,
     });
 
+    // Add the ticket to the event's tickets array
+    await Event.findByIdAndUpdate(eventId, { $push: { tickets: ticket._id } });
+
     const ticketWithEvent = {
       ...ticket._doc,
       event: {

@@ -5,39 +5,10 @@ import mongoose from "mongoose";
 
 const getAllEvents = async (req, res) => {
   try {
-    const eventsWithPrices = await Event.aggregate([
-      {
-        $lookup: {
-          from: "tickets",
-          localField: "_id",
-          foreignField: "eventId",
-          as: "tickets",
-        },
-      },
-      {
-        $addFields: {
-          minTicketPrice: {
-            $cond: [
-              { $gt: [{ $size: "$tickets" }, 0] },
-              { $min: "$tickets.price" },
-              null,
-            ],
-          },
-        },
-      },
-      {
-        $project: {
-          tickets: 0, // we don’t need full ticket details in this response
-        },
-      },
-    ]);
-
-    // Populate genreIds (since aggregation breaks normal .populate())
-    const populatedEvents = await Event.populate(eventsWithPrices, {
-      path: "genreIds",
-    });
-
-    res.status(200).json(populatedEvents);
+    const events = await Event.find()
+      .populate("tickets")
+      .populate("genreIds");
+    res.status(200).json(events);
   } catch (error) {
     console.error("Error in getAllEvents:", error);
     res.status(500).json({ message: error.message });
@@ -45,21 +16,28 @@ const getAllEvents = async (req, res) => {
 };
 
 const getEventById = async (req, res) => {
-   
-    try {
-        const { id } = req.params;
-        if (!mongoose.Types.ObjectId.isValid(id)) {
-            return res.status(400).json({ message: "Invalid event ID" });
-        }
-        const event = await Event.findById(id).populate("genreIds");
-        if (!event) {
-            return res.status(404).json({ message: "Event not found" });
-        }
-        res.status(200).json(event);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
+  try {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid event ID" });
     }
-}
+
+    const event = await Event.findById(id)
+      .populate("tickets")
+      .populate("genreIds");
+
+    if (!event) {
+      return res.status(404).json({ message: "Event not found" });
+    }
+
+    res.status(200).json(event);
+  } catch (error) {
+    console.error("Error in getEventById:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
 const getEventByGenre = async (req, res) => {
     
     try {

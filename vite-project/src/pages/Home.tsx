@@ -5,22 +5,19 @@ import Section1 from "@/components/HomePage/Section1";
 import EventCardContainer from "@/components/common/EventCardContainer";
 import Section2 from "@/components/HomePage/Section2";
 import ReviewSlider from "@/components/common/ReviewSlider";
-import {getReviews} from '@/store/reviewSlice'
-
+import { getReviews } from '@/store/reviewSlice';
 
 function Home() {
   const dispatch = useAppDispatch();
-  const { events, loading : eventLoading } = useAppSelector((state) => state.event);
-  const { reviews , loading: reviewLoading} = useAppSelector((state)=> state.review)
+  const { events, loading: eventLoading, hasFetched } = useAppSelector((state) => state.event);
+  const { reviews, loading: reviewLoading } = useAppSelector((state) => state.review);
 
   useEffect(() => {
-    dispatch(fetchAllEvents()).then((action) => {
-      console.log("feched Events" ,action);
-    dispatch(getReviews()).then((action)=>{
-      console.log("fetched Review :" , action)
-    })
-    });
-  }, [dispatch]);
+    if (!hasFetched) {
+      dispatch(fetchAllEvents());
+    }
+    dispatch(getReviews());
+  }, [dispatch, hasFetched]);
 
   const mappedEvents = Array.isArray(events)
     ? events.map((event) => ({
@@ -37,16 +34,15 @@ function Home() {
             : [],
       }))
     : [];
-    
+
   const mappedReviews = Array.isArray(reviews)
-      ? reviews.map((review) =>({
+    ? reviews.map((review) => ({
         _id: review._id,
         review: review.review,
-        rating : review.rating,
-        userId : review.userId
-
-
-      })) : [];
+        rating: review.rating,
+        userId: review.userId
+      }))
+    : [];
 
   return (
     <>
@@ -57,14 +53,11 @@ function Home() {
         <EventCardContainer events={mappedEvents} />
       )}
       <Section2 />
-      {reviewLoading ?(
+      {reviewLoading ? (
         <p className="text-white text-center">Loading Reviews.....</p>
-      ) :(
-
+      ) : (
         <ReviewSlider reviews={mappedReviews} />
-      )
-
-      }
+      )}
     </>
   );
 }

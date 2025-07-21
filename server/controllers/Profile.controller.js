@@ -151,6 +151,7 @@ const getUserEvents = async (req, res) => {
 
 const getPurchesedTickets = async (req, res) => {
     try {
+        const now = new Date();
         const userId = req.user.id;
         const userTickets = await UserTicket.find({userId , isPaid: true})
             .populate({

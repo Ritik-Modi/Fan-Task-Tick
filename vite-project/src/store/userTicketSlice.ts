@@ -42,7 +42,7 @@ const initialState: UserTicketState = {
 };
 
 // Fetch user's purchased tickets
-export const fetchPurchasedTickets = createAsyncThunk<UserTicket[], void>(
+export const fetchUserTickets = createAsyncThunk<UserTicket[], void>(
   'userTicket/fetchPurchasedTickets',
   async (_, thunkAPI) => {
     try {
@@ -64,15 +64,15 @@ const userTicketSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchPurchasedTickets.pending, (state) => {
+      .addCase(fetchUserTickets.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchPurchasedTickets.fulfilled, (state, action: PayloadAction<UserTicket[]>) => {
+      .addCase(fetchUserTickets.fulfilled, (state, action: PayloadAction<UserTicket[]>) => {
         state.loading = false;
         state.tickets = action.payload;
       })
-      .addCase(fetchPurchasedTickets.rejected, (state, action) => {
+      .addCase(fetchUserTickets.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       });

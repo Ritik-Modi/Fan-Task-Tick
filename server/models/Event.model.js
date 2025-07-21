@@ -28,6 +28,12 @@ const eventSchema = new mongoose.Schema({
       ref: "Genre",
     },
   ],
+  tickets: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Ticket",
+    },
+  ],
   startDate: {
     type: Date,
     required: true,

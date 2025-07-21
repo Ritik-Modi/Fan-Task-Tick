@@ -4,6 +4,17 @@ import axios from 'axios';
 import { handleAxiosError } from '../utils/handleAxiosError';
 import { adminEndpoints } from '../services/api';
 
+interface AdminTicket {
+  _id: string;
+  title: string;
+  description: string;
+  price: number;
+  quantity: number;
+  startSession: string;
+  endSession: string;
+  statusbar: 'active' | 'inactive' | 'sold out';
+}
+
 interface AdminEvent {
   _id: string;
   title: string;
@@ -14,6 +25,7 @@ interface AdminEvent {
   image: string;
   createdBy: string;
   genreIds?: string[];
+  tickets?: AdminTicket[];
 }
 
 interface Genre {
@@ -46,11 +58,13 @@ const initialState: AdminState = {
 };
 
 // 🔹 Create Event
-export const createEvent = createAsyncThunk<AdminEvent, EventPayload>(
+export const createEvent = createAsyncThunk<AdminEvent, FormData | EventPayload>(
   'admin/createEvent',
   async (data, thunkAPI) => {
     try {
-      const res = await axios.post(adminEndpoints.createEvent, data);
+      const res = await axios.post(adminEndpoints.createEvent, data, {
+        headers: data instanceof FormData ? {} : { 'Content-Type': 'application/json' }
+      });
       return res.data.event;
     } catch (error) {
       return thunkAPI.rejectWithValue(handleAxiosError(error));
@@ -59,11 +73,13 @@ export const createEvent = createAsyncThunk<AdminEvent, EventPayload>(
 );
 
 // 🔹 Update Event
-export const updateEvent = createAsyncThunk<AdminEvent, { id: string; data: Partial<EventPayload> }>(
+export const updateEvent = createAsyncThunk<AdminEvent, { id: string; data: FormData | Partial<EventPayload> }>(
   'admin/updateEvent',
   async ({ id, data }, thunkAPI) => {
     try {
-      const res = await axios.post(adminEndpoints.updateEvent(id), data);
+      const res = await axios.post(adminEndpoints.updateEvent(id), data, {
+        headers: data instanceof FormData ? {} : { 'Content-Type': 'application/json' }
+      });
       return res.data.event;
     } catch (error) {
       return thunkAPI.rejectWithValue(handleAxiosError(error));
@@ -110,6 +126,19 @@ export const removeGenre = createAsyncThunk<string, string>(
   }
 );
 
+// 🔹 Fetch All Events (Admin)
+export const fetchAdminEvents = createAsyncThunk<AdminEvent[], void>(
+  'admin/fetchAdminEvents',
+  async (_, thunkAPI) => {
+    try {
+      const res = await axios.get('/api/v1/event/getAllEvents');
+      return res.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(handleAxiosError(error));
+    }
+  }
+);
+
 const adminSlice = createSlice({
   name: 'admin',
   initialState,
@@ -122,8 +151,14 @@ const adminSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      .addCase(fetchAdminEvents.fulfilled, (state, action: PayloadAction<AdminEvent[]>) => {
+        // Sort events by creation date (newest first)
+        state.events = action.payload.sort((a, b) => 
+          new Date(b.startDate).getTime() - new Date(a.startDate).getTime()
+        );
+      })
       .addCase(createEvent.fulfilled, (state, action: PayloadAction<AdminEvent>) => {
-        state.events.push(action.payload);
+        state.events.unshift(action.payload);
       })
       .addCase(updateEvent.fulfilled, (state, action: PayloadAction<AdminEvent>) => {
         const updated = action.payload;

@@ -8,6 +8,17 @@ interface Genre {
   name: string;
 }
 
+interface Ticket {
+  _id: string;
+  title: string;
+  description: string;
+  price: number;
+  quantity: number;
+  startSession: string;
+  endSession: string;
+  statusbar: 'active' | 'inactive' | 'sold out';
+}
+
 interface Event {
   _id: string;
   title: string;
@@ -17,15 +28,16 @@ interface Event {
   startDate: string;
   endDate: string;
   genreIds: Genre[];
-  minTicketPrice?: number; // ✅ Add this line
+  minTicketPrice?: number;
+  tickets?: Ticket[];
 }
-
 
 interface EventState {
   events: Event[];
   eventDetails: Event | null;
   loading: boolean;
   error: string | null;
+  hasFetched: boolean; // ✅ Added
 }
 
 const initialState: EventState = {
@@ -33,6 +45,7 @@ const initialState: EventState = {
   eventDetails: null,
   loading: false,
   error: null,
+  hasFetched: false, // ✅ Added
 };
 
 export const fetchAllEvents = createAsyncThunk(
@@ -40,48 +53,60 @@ export const fetchAllEvents = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await axios.get(eventEndpoints.getAllEvents);
-      return response.data; // ✅ must return this
+      return response.data;
     } catch (error) {
       return rejectWithValue(handleAxiosError(error));
     }
   }
 );
 
-export const fetchEventById = createAsyncThunk<Event, string>('event/fetchEventById', async (id, thunkAPI) => {
-  try {
-    const response = await axios.get(eventEndpoints.getEventById(id));
-    return response.data;
-  } catch (error) {
-    return thunkAPI.rejectWithValue(handleAxiosError(error));
+export const fetchEventById = createAsyncThunk<Event, string>(
+  'event/fetchEventById',
+  async (id, thunkAPI) => {
+    try {
+      const response = await axios.get(eventEndpoints.getEventById(id));
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(handleAxiosError(error));
+    }
   }
-});
+);
 
-export const fetchEventByGenre = createAsyncThunk<Event[], string>('event/fetchEventByGenre', async (genreId, thunkAPI) => {
-  try {
-    const response = await axios.get(eventEndpoints.getEventByGenre(genreId));
-    return response.data;
-  } catch (error) {
-    return thunkAPI.rejectWithValue(handleAxiosError(error));
+export const fetchEventByGenre = createAsyncThunk<Event[], string>(
+  'event/fetchEventByGenre',
+  async (genreId, thunkAPI) => {
+    try {
+      const response = await axios.get(eventEndpoints.getEventByGenre(genreId));
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(handleAxiosError(error));
+    }
   }
-});
+);
 
-export const fetchEventByVenue = createAsyncThunk<Event[], string>('event/fetchEventByVenue', async (venue, thunkAPI) => {
-  try {
-    const response = await axios.get(eventEndpoints.getEventByVenue(venue));
-    return response.data;
-  } catch (error) {
-    return thunkAPI.rejectWithValue(handleAxiosError(error));
+export const fetchEventByVenue = createAsyncThunk<Event[], string>(
+  'event/fetchEventByVenue',
+  async (venue, thunkAPI) => {
+    try {
+      const response = await axios.get(eventEndpoints.getEventByVenue(venue));
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(handleAxiosError(error));
+    }
   }
-});
+);
 
-export const fetchEventByDate = createAsyncThunk<Event[], string>('event/fetchEventByDate', async (date, thunkAPI) => {
-  try {
-    const response = await axios.get(eventEndpoints.getEventByDate, { params: { date } });
-    return response.data;
-  } catch (error) {
-    return thunkAPI.rejectWithValue(handleAxiosError(error));
+export const fetchEventByDate = createAsyncThunk<Event[], string>(
+  'event/fetchEventByDate',
+  async (date, thunkAPI) => {
+    try {
+      const response = await axios.get(eventEndpoints.getEventByDate, { params: { date } });
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(handleAxiosError(error));
+    }
   }
-});
+);
 
 const eventSlice = createSlice({
   name: 'event',
@@ -100,12 +125,17 @@ const eventSlice = createSlice({
       })
       .addCase(fetchAllEvents.fulfilled, (state, action) => {
         state.loading = false;
-        state.events = action.payload;
+        // Sort events by start date (newest first)
+        state.events = action.payload.sort((a: Event, b: Event) => 
+          new Date(b.startDate).getTime() - new Date(a.startDate).getTime()
+        );
+        state.hasFetched = true; // ✅ Mark as fetched
       })
       .addCase(fetchAllEvents.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       })
+
       .addCase(fetchEventById.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -118,6 +148,7 @@ const eventSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       })
+
       .addCase(fetchEventByGenre.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -130,6 +161,7 @@ const eventSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       })
+
       .addCase(fetchEventByVenue.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -142,6 +174,7 @@ const eventSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       })
+
       .addCase(fetchEventByDate.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -153,7 +186,9 @@ const eventSlice = createSlice({
       .addCase(fetchEventByDate.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
-      });
+      })
+      
+      ;
   },
 });
 

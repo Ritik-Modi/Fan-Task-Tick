@@ -31,6 +31,22 @@ const generateOtp = async () => {
   return otp;
 };
 
+const avatarImg = [
+  "https://api.dicebear.com/9.x/thumbs/svg?seed=Christian",
+  "https://api.dicebear.com/9.x/thumbs/svg?seed=Liam",
+  "https://api.dicebear.com/9.x/thumbs/svg?seed=Easton",
+  "https://api.dicebear.com/9.x/thumbs/svg?seed=Luis",
+  "https://api.dicebear.com/9.x/thumbs/svg?seed=Leo"
+  
+
+]
+
+
+const assignRandomAvatar = () => {
+  const index = Math.floor(Math.random() * avatarImg.length);
+  return avatarImg[index];
+}
+
 const sendOtp = async (req, res) => {
   try {
     const { email } = req.body;
@@ -80,23 +96,23 @@ const signUp = async (req, res) => {
         .json({ success: false, message: "Please fill all the fields" });
     }
 
-    // Check if the user already exists
     if (await User.exists({ email })) {
       return res.status(400).json({ message: "User already exists" });
     }
 
-    // Validate the OTP
     const otpData = await Otp.findOne({ email, otp });
     if (!otpData) {
       return res.status(400).json({ success: false, message: "Invalid OTP" });
     }
 
-    
+    const avatar = assignRandomAvatar(); // ✅ assign avatar
+
     const user = await User.create({
       fullName,
       email,
       phone,
       accountType: "user",
+      avatar, // ✅ store avatar
     });
 
     const payload = {
@@ -110,14 +126,11 @@ const signUp = async (req, res) => {
       expiresIn: "24h",
     });
 
-    // DEBUG: Log the generated token for debugging purposes
-    console.log("JWT Token in signin controller:", token);
-
     res.cookie("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
-      maxAge: 3 * 24 * 60 * 60 * 1000, // 1 day
+      maxAge: 3 * 24 * 60 * 60 * 1000,
     });
     res.setHeader("Authorization", `Bearer ${token}`);
 
@@ -129,7 +142,7 @@ const signUp = async (req, res) => {
     });
   } catch (error) {
     console.error("Error signing up:", error.message);
-    return res.status(500).json({ message: "Internal server error",  });
+    return res.status(500).json({ message: "Internal server error" });
   }
 };
 
@@ -160,24 +173,24 @@ const login = async (req, res) => {
       expiresIn: "24h",
     });
 
-    // DEBUG: Log the generated token for debugging purposes
-    console.log("JWT Token in login controller:", token);
-
     res.cookie("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
-      maxAge: 3 * 24 * 60 * 60 * 1000, // 1 day
+      maxAge: 3 * 24 * 60 * 60 * 1000,
     });
     res.setHeader("Authorization", `Bearer ${token}`);
-
+    console.log(token)
     return res.status(200).json({
       success: true,
       message: "Login successful",
       user,
       token,
     });
-  } catch (error) {}
+  } catch (error) {
+    console.error("Error logging in:", error.message);
+    return res.status(500).json({ message: "Internal server error" });
+  }
 };
 
 const logOut = async (req, res) => {
@@ -199,4 +212,6 @@ const logOut = async (req, res) => {
 };
 
 
-export { sendOtp, signUp, login , logOut };
+export { sendOtp, signUp, login, logOut,  };
+
+

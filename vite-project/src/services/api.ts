@@ -50,14 +50,18 @@ export const eventEndpoints = {
 
 // --------- Ticket Endpoints ---------
 export const ticketEndpoints = {
+  // ✅ CORRECTED this line
   getTicketsByEvent: (eventId: string) =>
-    withParams(`${BASE_URL}/event/:eventId/ticket/getTicketByEvent`, { eventId }),
+    `${BASE_URL}/event/${eventId}/ticket/getTicketByEvent`,
+
   createTicket: (eventId: string) =>
-    withParams(`${BASE_URL}/event/:eventId/ticket/create-ticket`, { eventId }),
+    `${BASE_URL}/event/${eventId}/ticket/create-ticket`,
+
   updateTicket: (eventId: string, ticketId: string) =>
-    withParams(`${BASE_URL}/event/:eventId/ticket/updateTicket/:ticketId`, { eventId, ticketId }),
+    `${BASE_URL}/event/${eventId}/ticket/updateTicket/${ticketId}`,
+
   deleteTicket: (eventId: string, ticketId: string) =>
-    withParams(`${BASE_URL}/event/:eventId/ticket/deleteTicket/:ticketId`, { eventId, ticketId }),
+    `${BASE_URL}/event/${eventId}/ticket/deleteTicket/${ticketId}`,
 };
 
 // --------- Review Endpoints ---------
