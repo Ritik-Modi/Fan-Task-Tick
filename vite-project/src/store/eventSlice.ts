@@ -54,6 +54,7 @@ export const fetchAllEvents = createAsyncThunk(
     try {
       const response = await axios.get(eventEndpoints.getAllEvents);
       return response.data;
+      console.log(response.data)
     } catch (error) {
       return rejectWithValue(handleAxiosError(error));
     }

@@ -1,6 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
+import { useBreakpoint } from "@/hooks/useBreakpoint";
 
 interface Genre {
   id: string;
@@ -33,6 +34,7 @@ function EventCard({
   tickets = [],
 }: EventCardProps) {
   const navigate = useNavigate();
+  const { isMobile, isTablet } = useBreakpoint();
 
   const formattedDate = new Date(startDate).toLocaleDateString("en-GB", {
     day: "numeric",
@@ -40,39 +42,61 @@ function EventCard({
     year: "numeric",
   });
 
-  const lowestPrice = tickets.length
+  const lowestPrice = tickets?.length
     ? Math.min(...tickets.map((t) => t.price))
     : null;
 
   return (
-    <div onClick={() => navigate(`/events/${id}`)} className="cursor-pointer">
-      <Card>
-        <CardContent>
-          <div>
+    <div
+      onClick={() => navigate(`/events/${id}`)}
+      className="cursor-pointer hover:scale-[1.02] transition-transform duration-200 w-full"
+    >
+      <Card className="bg-gray-900 text-white rounded-xl overflow-hidden shadow-md">
+        <CardContent className="p-0">
+          <div className="relative w-full">
             <img
               src={img1}
-              alt="img1"
-              className="w-[410px] h-[274px] object-fill rounded-t-lg"
+              alt={title}
+              className={`w-full object-cover ${
+                isMobile
+                  ? "h-[180px]"
+                  : isTablet
+                  ? "h-[220px]"
+                  : "h-[270px]"
+              }`}
             />
-          </div>
-          <div className="bg-darkgray w-[415px] h-[228px] p-4 flex flex-col gap-2">
-            <div className=" flex flex-row justify-between">
+            <div className="absolute top-2 left-2">
               <Badge variant="secondary">⭐ {rating}</Badge>
-              <div className="flex gap-2">
-                {genres.map((genre, index) => (
-                  <Badge key={index}>{genre.name}</Badge>
-                ))}
-              </div>
             </div>
-            <div className="flex flex-col gap-5">
-              <div className="text-2xl font-semibold">{title}</div>
-              <div className="text-lg text-gray-400">{description}</div>
+          </div>
+
+          <div className="bg-darkgray p-4 flex flex-col gap-3">
+            <div className="flex flex-wrap gap-2">
+              {genres.map((genre) => (
+                <Badge key={genre.id} className="bg-gray-700 text-white">
+                  {genre.name}
+                </Badge>
+              ))}
             </div>
-            <div className="flex flex-row justify-between items-center">
-              <div className="text-xl font-semibold">
-                {lowestPrice !== null ? `From Rs ${lowestPrice}` : "No tickets"}
+
+            <div className="flex flex-col gap-1">
+              <h3 className="text-xl md:text-2xl font-semibold truncate">
+                {title}
+              </h3>
+              <p
+                className={`text-gray-400 ${
+                  isMobile ? "text-sm line-clamp-2" : "text-base line-clamp-3"
+                }`}
+              >
+                {description}
+              </p>
+            </div>
+
+            <div className="flex flex-row justify-between items-center pt-2 border-t border-gray-800">
+              <div className="text-lg font-semibold">
+                {lowestPrice !== null ? `From ₹${lowestPrice}` : "No tickets"}
               </div>
-              <div className="text-mint">{formattedDate}</div>
+              <div className="text-mint text-sm">{formattedDate}</div>
             </div>
           </div>
         </CardContent>

@@ -10,7 +10,8 @@ interface GenreFilterProps {
   selected: string;
   onChange: (value: string) => void;
   icon?: React.ReactNode;
-  onFocus?: () => void; // ✅ Already correct
+  onFocus?: () => void;
+  className?: string;
 }
 
 function GenreFilter({
@@ -18,15 +19,19 @@ function GenreFilter({
   selected,
   onChange,
   icon = <Tags className="w-4 h-4" />,
-  onFocus, // ✅ Add this to destructuring too
+  onFocus,
+  className = "",
 }: GenreFilterProps) {
   return (
-    <div className="relative w-full max-w-md">
+    <div className={`relative w-full ${className}`}>
       <select
         value={selected}
         onChange={(e) => onChange(e.target.value)}
-        onFocus={onFocus} // ✅ THIS LINE IS THE FIX
-        className="w-full pl-4 pr-10 py-2 rounded-full text-white bg-darkgray appearance-none"
+        onFocus={onFocus}
+        className="w-full pl-4 pr-10 py-2.5 rounded-full bg-[#1a1a1a] text-white
+                   border border-gray-700 placeholder-gray-500
+                   focus:border-purple-600 focus:ring-2 focus:ring-purple-700
+                   outline-none transition-all duration-200 appearance-none"
       >
         <option value="">All Genres</option>
         {genres.map((genre) => (
@@ -35,7 +40,7 @@ function GenreFilter({
           </option>
         ))}
       </select>
-      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">
+      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
         {icon}
       </span>
     </div>

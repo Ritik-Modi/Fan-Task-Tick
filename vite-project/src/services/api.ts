@@ -49,10 +49,10 @@ export const eventEndpoints = {
 };
 
 // --------- Ticket Endpoints ---------
+// --------- Ticket Endpoints (Backend: /api/v1/event/:eventId/ticket) ---------
 export const ticketEndpoints = {
-  // ✅ CORRECTED this line
   getTicketsByEvent: (eventId: string) =>
-    `${BASE_URL}/event/${eventId}/ticket/getTicketByEvent`,
+    `${BASE_URL}/event/${eventId}/ticket/getTicketsByEvent`,
 
   createTicket: (eventId: string) =>
     `${BASE_URL}/event/${eventId}/ticket/create-ticket`,
@@ -63,6 +63,7 @@ export const ticketEndpoints = {
   deleteTicket: (eventId: string, ticketId: string) =>
     `${BASE_URL}/event/${eventId}/ticket/deleteTicket/${ticketId}`,
 };
+
 
 // --------- Review Endpoints ---------
 export const reviewEndpoints = {

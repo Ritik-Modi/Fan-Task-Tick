@@ -6,12 +6,12 @@ import { ArrowRightIcon } from "lucide-react";
 import {
   Pagination,
   PaginationContent,
-  // PaginationEllipsis,
   PaginationItem,
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { useBreakpoint } from "@/hooks/useBreakpoint";
 
 interface Genre {
   id: string;
@@ -35,12 +35,13 @@ interface Event {
 
 interface EventCardContainerProps {
   events: Event[];
-  limit?: number;
+  limit?: number; // how many cards to show per "page" or "section"
 }
 
 function EventCardContainer({ events, limit = 3 }: EventCardContainerProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const navigate = useNavigate();
+  const { isMobile, isTablet } = useBreakpoint();
 
   const eventsPerPage = limit;
   const totalPages = Math.ceil(events.length / eventsPerPage);
@@ -52,54 +53,72 @@ function EventCardContainer({ events, limit = 3 }: EventCardContainerProps) {
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= totalPages) {
       setCurrentPage(page);
-      window.scrollTo({ top: 0, behavior: "smooth" }); // optional: scroll to top
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
 
   return (
-    <div className="flex flex-col items-center gap-10">
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-[25px]">
+    <div className="flex flex-col items-center gap-10 w-full">
+      {/* === Event Grid === */}
+      <div
+        className={`grid gap-6 sm:gap-8 w-full justify-items-center ${
+          isMobile
+            ? "grid-cols-1"
+            : isTablet
+            ? "grid-cols-2"
+            : "grid-cols-3"
+        }`}
+      >
         {paginatedEvents.map((event) => (
           <EventCard key={event.id} {...event} />
         ))}
       </div>
 
-      {/* === Bottom Control === */}
-      {limit === 3 ? (
-        <Button onClick={() => navigate("/events")}>
-          View More <ArrowRightIcon className="ml-2" />
-        </Button>
-      ) : events.length > eventsPerPage ? (
-        <Pagination>
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationPrevious
-                href="#"
-                onClick={() => handlePageChange(currentPage - 1)}
-              />
-            </PaginationItem>
+      {/* === Bottom Control Section === */}
+      <div className="flex justify-center items-center w-full">
+        {/* When using limit = 3 (like homepage section) */}
+        {limit === 3 ? (
+          <Button
+            onClick={() => navigate("/events")}
+            className="flex items-center gap-2"
+          >
+            View More <ArrowRightIcon className="w-4 h-4" />
+          </Button>
+        ) : (
+          // Pagination only if there are multiple pages
+          events.length > eventsPerPage && (
+            <Pagination>
+              <PaginationContent className="flex flex-wrap justify-center gap-2">
+                <PaginationItem>
+                  <PaginationPrevious
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    className="cursor-pointer"
+                  />
+                </PaginationItem>
 
-            {Array.from({ length: totalPages }, (_, i) => (
-              <PaginationItem key={i}>
-                <PaginationLink
-                  href="#"
-                  isActive={currentPage === i + 1}
-                  onClick={() => handlePageChange(i + 1)}
-                >
-                  {i + 1}
-                </PaginationLink>
-              </PaginationItem>
-            ))}
+                {Array.from({ length: totalPages }, (_, i) => (
+                  <PaginationItem key={i}>
+                    <PaginationLink
+                      isActive={currentPage === i + 1}
+                      onClick={() => handlePageChange(i + 1)}
+                      className="cursor-pointer"
+                    >
+                      {i + 1}
+                    </PaginationLink>
+                  </PaginationItem>
+                ))}
 
-            <PaginationItem>
-              <PaginationNext
-                href="#"
-                onClick={() => handlePageChange(currentPage + 1)}
-              />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
-      ) : null}
+                <PaginationItem>
+                  <PaginationNext
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    className="cursor-pointer"
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          )
+        )}
+      </div>
     </div>
   );
 }

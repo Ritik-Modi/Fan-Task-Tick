@@ -5,7 +5,8 @@ import { createTicketForEvent, updateTicket, deleteTicket, getTicketByEvent } fr
 const router = express.Router({ mergeParams: true }); // Important: mergeParams allows access to eventId
 
 // GET /api/v1/event/:eventId/ticket - Get all tickets for an event
-router.get("/getTicketByEvent", getTicketByEvent);
+router.get("/getTicketsByEvent", getTicketByEvent);
+
 
 // POST /api/v1/event/:eventId/ticket - Create a ticket for an event
 router.post("/create-ticket",authMiddleware, isAdmin, createTicketForEvent);

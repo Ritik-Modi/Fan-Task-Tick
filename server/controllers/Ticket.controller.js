@@ -12,7 +12,6 @@ const createTicketForEvent = async (req, res) => {
     if (user.accountType !== "admin") {
       return res.status(403).json({ message: "You are not authorized to create a ticket" });
     }
-
     const eventId = req.params.eventId;
     const event = await Event.findById(eventId);
     if (!event) {
@@ -60,7 +59,7 @@ const createTicketForEvent = async (req, res) => {
 
 const updateTicket = async (req, res) => { 
     try {
-        const { title, description, price, quantity, startSession, endSession } = req.body;
+        const { title, description, price, quantity, startSession, endSession , statusbar } = req.body;
         const userId = req.user.id;
         const user = await User.findById(userId);
         if (user.accountType !== "admin") {
@@ -82,6 +81,7 @@ const updateTicket = async (req, res) => {
             quantity,
             startSession,
             endSession,
+            statusbar,
         }, { new: true });
         
         res.status(200).json({

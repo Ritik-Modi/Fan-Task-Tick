@@ -1,6 +1,6 @@
 import { useAppSelector } from "@/store/hook";
 import UserDashboard from "@/components/dashboard/UserDashboard";
-import AdminDashboard from "@/components/dashboard/AdminDashboard";
+import AdminDashboard from "@/components/dashboard/adminDashboard/AdminDashboard";
 
 function Dashboard() {
   const user = useAppSelector((state) => state.auth.user);
