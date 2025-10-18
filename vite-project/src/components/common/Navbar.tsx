@@ -2,8 +2,6 @@ import Logo from "../../assets/LOGO.png";
 import { navbarLinks } from "@/data/navbar_links";
 import { NavLink } from "react-router-dom";
 import { Button } from "../ui/button";
-import LoginForm from "../auth/LoginForm";
-import SignUpForm from "../auth/SignUpForm";
 import UserDropdown from "./UserDropDown";
 import { logout } from "@/store/authSlice.ts";
 import { useAppDispatch, useAppSelector } from "@/store/hook.ts";

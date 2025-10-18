@@ -20,7 +20,7 @@ interface UserDropdownProps {
     email?: string;
     avatar?: string;
   };
-  onLogout: () => void;
+  onLogout?: () => void;
   onDashboard?: () => void;
   onProfile?: () => void;
   onSettings?: () => void;
