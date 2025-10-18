@@ -15,9 +15,9 @@ function Event() {
   const { eventDetails, loading: eventLoading } = useAppSelector(
     (state) => state.event
   );
-  const { tickets, loading: ticketLoading, error: ticketError } = useAppSelector(
-    (state) => state.ticket
-  );
+  const { tickets = [], loading: ticketLoading, error: ticketError } = useAppSelector(
+  (state) => state.ticket
+);
 
   const [selectedTickets, setSelectedTickets] = useState<Record<string, number>>({});
 
@@ -26,16 +26,17 @@ function Event() {
       dispatch(fetchEventById(id));
       dispatch(getTicketsByEvent(id));
     }
+    console.log(eventDetails?.tickets);
   }, [dispatch, id]);
 
   const loading = eventLoading || ticketLoading;
 
-  const totalAmount = useMemo(() => {
-    return tickets.reduce((total, ticket) => {
-      const qty = selectedTickets[ticket._id] || 0;
-      return total + ticket.price * qty;
-    }, 0);
-  }, [selectedTickets, tickets]);
+const totalAmount = useMemo(() => {
+  return tickets.reduce((total, ticket) => {
+    const qty = selectedTickets[ticket._id] || 0;
+    return total + ticket.price * qty;
+  }, 0);
+}, [selectedTickets, tickets]);
 
   const handleQuantityChange = (ticketId: string, value: string) => {
     const qty = Math.max(0, Number(value));
@@ -242,7 +243,7 @@ function Event() {
         <Button
           variant="outline"
           onClick={() => navigate("/events")}
-          className="border-gray-700 text-gray-300 hover:text-white hover:border-purple-500"
+          className="border-gray-700 text-gray-300 hover:text-white hover:border-purple-500 bg-black"
         >
           ← Back to Events
         </Button>

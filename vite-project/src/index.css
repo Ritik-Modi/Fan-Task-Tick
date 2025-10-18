@@ -1,21 +1,86 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+/* --- Tailwind v4 Dark Variant --- */
 @custom-variant dark (&:is(.dark *));
 
-@theme{
-    --color-mint :  #36FBC1;
-    --color-lightgray : #CCCBCB;
-    --color-darkgray : #1E1E1E;
-    --color-softgray : #C2C2C2;
-    --color-darkergray: #2B2B2B;
+/* --- Theme Colors --- */
+@theme {
+  /* 🌈 Base system colors (used by utilities like border-border, bg-background, etc.) */
+  --color-background: hsl(0 0% 100%);
+  --color-foreground: hsl(240 10% 3.9%);
+  --color-border: hsl(240 5.9% 90%);
+  --color-ring: hsl(240 5% 64.9%);
+  --color-input: hsl(240 5.9% 90%);
+
+  /* 💎 Your custom brand colors */
+  --color-mint: #36FBC1;
+  --color-lightgray: #CCCBCB;
+  --color-darkgray: #1E1E1E;
+  --color-softgray: #C2C2C2;
+  --color-darkergray: #2B2B2B;
 }
 
+/* --- Dark Mode Overrides --- */
+.dark {
+  --color-background: hsl(240 10% 3.9%);
+  --color-foreground: hsl(0 0% 98%);
+  --color-border: hsl(240 3.7% 15.9%);
+  --color-ring: hsl(240 4.9% 83.9%);
+  --color-input: hsl(240 3.7% 15.9%);
+}
+
+/* --- Sidebar Theme Tokens --- */
+:root {
+  --sidebar: hsl(0 0% 98%);
+  --sidebar-foreground: hsl(240 5.3% 26.1%);
+  --sidebar-primary: hsl(240 5.9% 10%);
+  --sidebar-primary-foreground: hsl(0 0% 98%);
+  --sidebar-accent: hsl(240 4.8% 95.9%);
+  --sidebar-accent-foreground: hsl(240 5.9% 10%);
+  --sidebar-border: hsl(220 13% 91%);
+  --sidebar-ring: hsl(217.2 91.2% 59.8%);
+}
+
+.dark {
+  --sidebar: hsl(240 5.9% 10%);
+  --sidebar-foreground: hsl(240 4.8% 95.9%);
+  --sidebar-primary: hsl(224.3 76.3% 48%);
+  --sidebar-primary-foreground: hsl(0 0% 100%);
+  --sidebar-accent: hsl(240 3.7% 15.9%);
+  --sidebar-accent-foreground: hsl(240 4.8% 95.9%);
+  --sidebar-border: hsl(240 3.7% 15.9%);
+  --sidebar-ring: hsl(217.2 91.2% 59.8%);
+}
+
+/* Inline mappings for sidebar colors */
+@theme inline {
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+/* --- Tailwind Base Layers --- */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Custom Scrollbar */
+/* --- Global Base Styles --- */
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* --- Custom Scrollbar --- */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -42,7 +107,7 @@
   scrollbar-color: #00d4aa #1a1a1a;
 }
 
-/* Custom Date/Time Input Styling */
+/* --- Custom Input Styles --- */
 input[type="date"],
 input[type="datetime-local"],
 input[type="time"] {
@@ -63,8 +128,9 @@ input[type="time"]:focus {
   box-shadow: 0 0 0 2px rgba(0, 212, 170, 0.2);
 }
 
-/* Date/Time Input Icons */
-.date-input-wrapper {
+/* --- Input Icons --- */
+.date-input-wrapper,
+.time-input-wrapper {
   position: relative;
 }
 
@@ -88,7 +154,7 @@ input[type="time"]:focus {
   z-index: 10;
 }
 
-/* Dashboard Card Hover Effects */
+/* --- Dashboard Card Hover --- */
 .dashboard-card {
   transition: all 0.3s ease;
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -100,40 +166,28 @@ input[type="time"]:focus {
   border-color: rgba(0, 212, 170, 0.3);
 }
 
-/* Loading Animation */
+/* --- Loading Animation --- */
 .loading-pulse {
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
 @keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.5;
-  }
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
 }
 
-/* Success Animation */
+/* --- Success Animation --- */
 .success-bounce {
   animation: successBounce 0.6s ease;
 }
 
 @keyframes successBounce {
-  0% {
-    transform: scale(0.8);
-    opacity: 0;
-  }
-  50% {
-    transform: scale(1.1);
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
+  0% { transform: scale(0.8); opacity: 0; }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); opacity: 1; }
 }
 
-/* Custom Button Styles */
+/* --- Buttons --- */
 .btn-primary {
   background: linear-gradient(135deg, #00d4aa 0%, #00b894 100%);
   border: none;
@@ -161,7 +215,7 @@ input[type="time"]:focus {
   transform: translateY(-1px);
 }
 
-/* Status Badges */
+/* --- Status Badges --- */
 .status-active {
   background: linear-gradient(135deg, #00d4aa 0%, #00b894 100%);
   color: black;
@@ -180,28 +234,28 @@ input[type="time"]:focus {
   font-weight: 600;
 }
 
-/* Dashboard Grid Layout */
+/* --- Dashboard Grid --- */
 .dashboard-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 1.5rem;
 }
 
-/* Responsive Dashboard */
+/* --- Responsive Dashboard --- */
 @media (max-width: 768px) {
   .dashboard-grid {
     grid-template-columns: 1fr;
   }
 }
 
-/* Glass Morphism Effect */
+/* --- Glass Effect --- */
 .glass {
   background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* Gradient Text */
+/* --- Gradient Text --- */
 .gradient-text {
   background: linear-gradient(135deg, #00d4aa 0%, #00b894 100%);
   -webkit-background-clip: text;
@@ -209,7 +263,7 @@ input[type="time"]:focus {
   background-clip: text;
 }
 
-/* Floating Action Button */
+/* --- Floating Action Button --- */
 .fab {
   position: fixed;
   bottom: 2rem;
@@ -230,7 +284,7 @@ input[type="time"]:focus {
   box-shadow: 0 6px 25px rgba(0, 212, 170, 0.4);
 }
 
-/* Notification Toast */
+/* --- Notification Toast --- */
 .toast {
   position: fixed;
   top: 2rem;
@@ -254,46 +308,4 @@ input[type="time"]:focus {
     transform: translateX(0);
     opacity: 1;
   }
-}
-
-:root {
-    --sidebar :  hsl(0 0% 98%);
-    --sidebar-foreground :  hsl(240 5.3% 26.1%);
-    --sidebar-primary :  hsl(240 5.9% 10%);
-    --sidebar-primary-foreground :  hsl(0 0% 98%);
-    --sidebar-accent :  hsl(240 4.8% 95.9%);
-    --sidebar-accent-foreground :  hsl(240 5.9% 10%);
-    --sidebar-border :  hsl(220 13% 91%);
-    --sidebar-ring :  hsl(217.2 91.2% 59.8%);
-}
-
-.dark {
-    --sidebar :  hsl(240 5.9% 10%);
-    --sidebar-foreground :  hsl(240 4.8% 95.9%);
-    --sidebar-primary :  hsl(224.3 76.3% 48%);
-    --sidebar-primary-foreground :  hsl(0 0% 100%);
-    --sidebar-accent :  hsl(240 3.7% 15.9%);
-    --sidebar-accent-foreground :  hsl(240 4.8% 95.9%);
-    --sidebar-border :  hsl(240 3.7% 15.9%);
-    --sidebar-ring :  hsl(217.2 91.2% 59.8%);
-}
-
-@theme inline {
-    --color-sidebar :  var(--sidebar);
-    --color-sidebar-foreground :  var(--sidebar-foreground);
-    --color-sidebar-primary :  var(--sidebar-primary);
-    --color-sidebar-primary-foreground :  var(--sidebar-primary-foreground);
-    --color-sidebar-accent :  var(--sidebar-accent);
-    --color-sidebar-accent-foreground :  var(--sidebar-accent-foreground);
-    --color-sidebar-border :  var(--sidebar-border);
-    --color-sidebar-ring :  var(--sidebar-ring);
-}
-
-@layer base {
-  * {
-    @apply border-border outline-ring/50;
-    }
-  body {
-    @apply bg-background text-foreground;
-    }
 }

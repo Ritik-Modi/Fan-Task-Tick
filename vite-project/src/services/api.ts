@@ -29,6 +29,7 @@ export const adminEndpoints = {
 // --------- Genre Endpoints ---------
 export const genreEndpoints = {
   getAllGenres: `${BASE_URL}/genre/genres`,
+   createGenre: "/api/genre/addGenre", 
 };
 
 // --------- User Endpoints ---------

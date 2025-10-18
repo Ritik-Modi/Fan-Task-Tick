@@ -34,7 +34,8 @@ export const getTicketsByEvent = createAsyncThunk<Ticket[], string>(
   async (eventId, thunkAPI) => {
     try {
       const res = await axios.get(ticketEndpoints.getTicketsByEvent(eventId));
-      return res.data.tickets;
+      return res.data;
+      console.log(res.data)
     } catch (error) {
       return thunkAPI.rejectWithValue(handleAxiosError(error));
     }
