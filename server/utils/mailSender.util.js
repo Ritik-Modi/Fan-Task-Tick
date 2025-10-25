@@ -46,7 +46,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 async function mailSender(email, title, body) {
   try {
     const data = await resend.emails.send({
-      from: "Fantasktick <no-reply@Fantasktick.com>",
+      from: "Fantasktick <no-reply@fantasktick.com>",
       to: email,
       subject: title,
       html: body,
