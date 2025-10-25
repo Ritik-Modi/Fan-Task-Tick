@@ -19,8 +19,8 @@ function Home() {
   const { isMobile } = useBreakpoint();
 
   useEffect(() => {
-    if (!hasFetched) dispatch(fetchAllEvents());
-    dispatch(getReviews());
+    if (!hasFetched) dispatch(fetchAllEvents()); //TODO: make the the logic better like fetch only data that we need not the all data
+    dispatch(getReviews());                       // TODO: same as above
   }, [dispatch, hasFetched]);
 
   const mappedEvents = Array.isArray(events)

@@ -26,6 +26,7 @@
     "otp-generator": "^4.0.1",
     "qrcode": "^1.5.4",
     "razorpay": "^2.9.6",
+    "resend": "^6.2.2",
     "twilio": "^5.5.2"
   },
   "devDependencies": {
