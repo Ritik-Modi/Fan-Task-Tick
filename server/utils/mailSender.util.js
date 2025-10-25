@@ -1,64 +1,35 @@
-import nodemailer from "nodemailer";
+import emailjs from "@emailjs/nodejs";
 import dotenv from "dotenv";
-import { Resend } from "resend";
 dotenv.config();
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
-
-// const mailSender = async (email, title, body) => {
-//   try {
-//     // DEBUG: Log environment variables for debugging
-//     console.log("Using SMTP Host:", process.env.MAIN_HOST);
-//     console.log("Using SMTP Port:", process.env.MAIN_PORT);
-//     console.log("Using Email:", process.env.MAIN_USER);
-
-//     let transporter = nodemailer.createTransport({
-//       host: process.env.MAIN_HOST || "smtp.gmail.com",
-//       port: Number(process.env.MAIN_PORT) || 465,
-//       secure: process.env.MAIN_PORT == 465, // True for 465 (SSL), False for 587 (TLS)
-//       auth: {
-//         user: process.env.MAIN_USER,
-//         pass: process.env.MAIN_PASS,
-//       },
-//       tls: {
-//         rejectUnauthorized: false, // Allows self-signed certificates (optional)
-//       },
-//     });
-
-//     let info = await transporter.sendMail({
-//       from: `"StudyNotion" <${process.env.MAIN_USER}>`,
-//       to: email,
-//       subject: title,
-//       html: body,
-//     });
-
-//     console.log("✅ Email sent:", info.messageId);
-//     return info;
-//   } catch (error) {
-//     console.log("Error in mailsender : " , error)
-//     console.error("❌ Error sending email:", error.message);
-//     throw new Error(`Failed to send email: ${error.message}`);
-//   }
-// };
-
-
-async function mailSender(email, title, body) {
+const mailSender = async (email, title, body) => {
   try {
-    const data = await resend.emails.send({
-      from: "Fantasktick <onboarding@resend.dev>",
-      to: email,
+    console.log("Sending email via EmailJS...");
+
+    const templateParams = {
+      to_email: email,
+      to_name: email.split("@")[0], // name before @
       subject: title,
-      html: body,
-    });
-    console.log("✅ Email sent:", data);
-    return data;
+      message: body,
+      otp: body, // optional if sending OTP
+    };
+
+    const result = await emailjs.send(
+      process.env.EMAILJS_SERVICE_ID,
+      process.env.EMAILJS_TEMPLATE_ID,
+      templateParams,
+      {
+        publicKey: process.env.EMAILJS_PUBLIC_KEY,
+        privateKey: process.env.EMAILJS_PRIVATE_KEY, // optional if you have one
+      }
+    );
+
+    console.log("✅ Email sent successfully:", result.status, result.text);
+    return result;
   } catch (error) {
     console.error("❌ Error sending email:", error);
     throw new Error(`Failed to send email: ${error.message}`);
   }
-}
+};
 
 export default mailSender;
-
-
