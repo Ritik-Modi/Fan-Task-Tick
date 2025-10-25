@@ -65,7 +65,13 @@ const sendOtp = async (req, res) => {
 
     
     await Otp.create({ email, otp });
-    await mailSender(email, "Your OTP Code", `Your OTP is: ${otp}`);
+    const body = `
+      <h3>Your StudyNotion OTP Code</h3>
+      <p>Hello 👋,</p>
+      <p>Your OTP code is: <strong>${otp}</strong></p>
+      <p>This code will expire in 5 minutes.</p>
+    `;
+    await mailSender(email, "Your OTP Code", body);
 
 
     // if (phone) {

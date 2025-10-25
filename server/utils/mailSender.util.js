@@ -1,38 +1,29 @@
-import nodemailer from "nodemailer";
+import SibApiV3Sdk from "sib-api-v3-sdk";
 import dotenv from "dotenv";
 dotenv.config();
 
 const mailSender = async (email, title, body) => {
   try {
-    console.log("📧 Sending email via Brevo SMTP...");
+    console.log("📨 Sending email via Brevo API...");
 
-    // Create transporter for Brevo (SendinBlue)
-    const transporter = nodemailer.createTransport({
-      host: process.env.MAIN_HOST || "smtp-relay.brevo.com",
-      port: Number(process.env.MAIN_PORT) || 587,
-      secure: false, // Brevo uses TLS on port 587
-      auth: {
-        user: process.env.MAIN_USER, // your Brevo account email
-        pass: process.env.MAIN_PASS, // your Brevo API key
-      },
-    });
+    const defaultClient = SibApiV3Sdk.ApiClient.instance;
+    const apiKey = defaultClient.authentications["api-key"];
+    apiKey.apiKey = process.env.BREVO_API_KEY;
 
-    // Verify SMTP connection before sending
-    await transporter.verify();
-    console.log("✅ SMTP connection successful");
+    const tranEmailApi = new SibApiV3Sdk.TransactionalEmailsApi();
 
-    // Send email
-    const info = await transporter.sendMail({
-      from: `"StudyNotion" <${process.env.MAIN_USER}>`,
-      to: email,
+    const sendSmtpEmail = {
+      sender: { name: "StudyNotion", email: process.env.BREVO_SENDER },
+      to: [{ email }],
       subject: title,
-      html: body,
-    });
+      htmlContent: body,
+    };
 
-    console.log("✅ Email sent successfully:", info.messageId);
-    return info;
+    const response = await tranEmailApi.sendTransacEmail(sendSmtpEmail);
+    console.log("✅ Email sent successfully via Brevo API:", response.messageId);
+    return response;
   } catch (error) {
-    console.error("❌ Error sending email:", error);
+    console.error("❌ Error sending email via Brevo API:", error.message);
     throw new Error(`Failed to send email: ${error.message}`);
   }
 };
