@@ -1,17 +1,15 @@
-import emailjs from "emailjs-com";
+import * as emailjs from "@emailjs/nodejs";
 import dotenv from "dotenv";
 dotenv.config();
 
 const mailSender = async (email, title, body) => {
   try {
-    console.log("Sending email via EmailJS...");
+    console.log("Sending email via EmailJS (Node.js)...");
 
     const templateParams = {
       to_email: email,
-      to_name: email.split("@")[0], // name before @
       subject: title,
       message: body,
-      otp: body, // optional if sending OTP
     };
 
     const result = await emailjs.send(
@@ -20,11 +18,11 @@ const mailSender = async (email, title, body) => {
       templateParams,
       {
         publicKey: process.env.EMAILJS_PUBLIC_KEY,
-        privateKey: process.env.EMAILJS_PRIVATE_KEY, // optional if you have one
+        privateKey: process.env.EMAILJS_PRIVATE_KEY, // optional but better for server
       }
     );
 
-    console.log("✅ Email sent successfully:", result.status, result.text);
+    console.log("✅ Email sent successfully:", result);
     return result;
   } catch (error) {
     console.error("❌ Error sending email:", error);
