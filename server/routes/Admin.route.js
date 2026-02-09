@@ -2,7 +2,10 @@ import { Router } from 'express';
 import {
   createEvent,
   updateEvent,
-  deleteEvent
+  deleteEvent,
+  deactivateUser,
+  activateUser,
+  getAllPurchases
 } from '../controllers/Admin.controller.js';
 import {
   addGenre,
@@ -13,16 +16,19 @@ import {
 //   updateTicket,
 //   deleteTicket
 // } from '../controllers/Ticket.controller.js';
-import { isAdmin, authMiddleware } from '../middlewares/Auth.middleware.js';
+import { isAdmin, authMiddleware, ensureActiveUser } from '../middlewares/Auth.middleware.js';
 import ticketRoutes from './Ticket.route.js';
 
 const router = Router();
 
-router.post('/createEvent', authMiddleware, isAdmin, createEvent);
-router.put('/updateEvent/:id', authMiddleware, isAdmin, updateEvent);
-router.delete('/deleteEvent/:id', authMiddleware, isAdmin, deleteEvent);
-router.post('/addGenre',    authMiddleware, isAdmin, addGenre);
-router.delete('/removeGenre/:id', authMiddleware, isAdmin, removeGenre);
+router.post('/createEvent', authMiddleware, ensureActiveUser, isAdmin, createEvent);
+router.put('/updateEvent/:id', authMiddleware, ensureActiveUser, isAdmin, updateEvent);
+router.delete('/deleteEvent/:id', authMiddleware, ensureActiveUser, isAdmin, deleteEvent);
+router.post('/addGenre',    authMiddleware, ensureActiveUser, isAdmin, addGenre);
+router.delete('/removeGenre/:id', authMiddleware, ensureActiveUser, isAdmin, removeGenre);
+router.put('/users/:id/deactivate', authMiddleware, ensureActiveUser, isAdmin, deactivateUser);
+router.put('/users/:id/activate', authMiddleware, ensureActiveUser, isAdmin, activateUser);
+router.get('/purchases', authMiddleware, ensureActiveUser, isAdmin, getAllPurchases);
 // router.post('/createTicketForEvent', authMiddleware, isAdmin, createTicketForEvent);
 // router.post('/updateTicket',          authMiddleware, isAdmin, updateTicket);
 // router.post('/deleteTicket',          authMiddleware, isAdmin, deleteTicket);

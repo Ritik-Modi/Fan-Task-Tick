@@ -7,6 +7,7 @@ const userSchema = new mongoose.Schema({
   phone: { type: Number, required: true },
   avatar: { type: String, required: true }, // ✅ New field
   profile: { type: mongoose.Schema.Types.ObjectId, ref: "Profile" },
+  status: { type: String, enum: ["active", "suspended"], default: "active" },
   createdAt: { type: Date, default: Date.now },
 });
 

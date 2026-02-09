@@ -97,11 +97,11 @@ export const fetchEventByVenue = createAsyncThunk<Event[], string>(
   }
 );
 
-export const fetchEventByDate = createAsyncThunk<Event[], string>(
+export const fetchEventByDate = createAsyncThunk<Event[], { startDate: string; endDate: string }>(
   'event/fetchEventByDate',
-  async (date, thunkAPI) => {
+  async ({ startDate, endDate }, thunkAPI) => {
     try {
-      const response = await axios.get(eventEndpoints.getEventByDate, { params: { date } });
+      const response = await axios.get(eventEndpoints.getEventByDate, { params: { startDate, endDate } });
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(handleAxiosError(error));

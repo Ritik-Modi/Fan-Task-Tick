@@ -1,18 +1,20 @@
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
+import User from "../models/User.model.js";
 dotenv.config();
 
-const authMiddleware = (req, res, next) => {
+const authMiddleware = async (req, res, next) => {
   try {
-    const token =
+    let token =
       req.cookies.token ||
       req.headers["x-access-token"] ||
       req.headers["authorization"];
+
+    if (typeof token === "string" && token.startsWith("Bearer ")) {
+      token = token.slice("Bearer ".length);
+    }
     if (!token)
       return res.status(401).json({ success: false, message: "Unauthorized" });
-
-    // DEBUG:
-    console.log("Extracted Token:", token);
 
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -23,6 +25,28 @@ const authMiddleware = (req, res, next) => {
     }
   } catch (error) {
     console.error("Error in authMiddleware:", error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error" });
+  }
+};
+
+const ensureActiveUser = async (req, res, next) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ success: false, message: "Unauthorized" });
+    }
+    const user = await User.findById(userId).select("status");
+    if (!user) {
+      return res.status(401).json({ success: false, message: "Unauthorized" });
+    }
+    if (user.status === "suspended") {
+      return res.status(403).json({ success: false, message: "Account suspended" });
+    }
+    next();
+  } catch (error) {
+    console.error("Error in ensureActiveUser middleware:", error);
     return res
       .status(500)
       .json({ success: false, message: "Internal server error" });
@@ -57,4 +81,4 @@ const isUser = (req, res, next) => {
   }
 };
 
-export { authMiddleware, isAdmin , isUser };
+export { authMiddleware, ensureActiveUser, isAdmin , isUser };

@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk, isRejectedWithValue } from '@reduxjs/too
 import type { PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { handleAxiosError } from '../utils/handleAxiosError';
-import { adminEndpoints } from '../services/api';
+import { adminEndpoints, eventEndpoints } from '../services/api';
 
 interface AdminTicket {
   _id: string;
@@ -77,7 +77,7 @@ export const updateEvent = createAsyncThunk<AdminEvent, { id: string; data: Form
   'admin/updateEvent',
   async ({ id, data }, thunkAPI) => {
     try {
-      const res = await axios.post(adminEndpoints.updateEvent(id), data, {
+      const res = await axios.put(adminEndpoints.updateEvent(id), data, {
         headers: data instanceof FormData ? {} : { 'Content-Type': 'application/json' }
       });
       return res.data.event;
@@ -106,7 +106,7 @@ export const addGenre = createAsyncThunk<Genre, { name: string }>(
   async (genreData, thunkAPI) => {
     try {
       const res = await axios.post(adminEndpoints.addGenre, genreData);
-      return res.data.genre;
+      return res.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(handleAxiosError(error));
     }
@@ -131,7 +131,7 @@ export const fetchAdminEvents = createAsyncThunk<AdminEvent[], void>(
   'admin/fetchAdminEvents',
   async (_, thunkAPI) => {
     try {
-      const res = await axios.get('/api/v1/event/getAllEvents');
+      const res = await axios.get(eventEndpoints.getAllEvents);
       return res.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(handleAxiosError(error));

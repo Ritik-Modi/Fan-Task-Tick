@@ -8,21 +8,30 @@ dotenv.config();
 
 const createReview = async (req, res) => {
     try {
-        const {  review, rating } = req.body;
-        // const eventId = req.params.eventId;
+        const { review, rating, eventId } = req.body;
         const userId = req.user.id; // Get from authentication middleware
         
         if (!review || !rating) {
             return res.status(400).json({ message: "Review and rating are required" });
         }
 
-        
-        
+        if (eventId && !mongoose.Types.ObjectId.isValid(eventId)) {
+            return res.status(400).json({ message: "Invalid event ID" });
+        }
+
+        if (eventId) {
+            const event = await Event.findById(eventId);
+            if (!event) {
+                return res.status(404).json({ message: "Event not found" });
+            }
+        }
+
         // Create review
         const newReview = await Review.create({
             review,
             rating,
-            userId
+            userId,
+            eventId: eventId || undefined,
         });
         
         res.status(201).json({
@@ -39,7 +48,16 @@ const createReview = async (req, res) => {
 const getReviews = async (req, res) => {
     try {
         
-        const reviews = await Review.find().populate("userId" , "fullName");
+        const { eventId } = req.query;
+        const query = {};
+        if (eventId) {
+            if (!mongoose.Types.ObjectId.isValid(eventId)) {
+                return res.status(400).json({ message: "Invalid event ID" });
+            }
+            query.eventId = eventId;
+        }
+
+        const reviews = await Review.find(query).populate("userId" , "fullName");
 
         if(!reviews){
             return res.status(400).json({massage: "There are No Review till Now"})

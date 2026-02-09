@@ -1,6 +1,6 @@
 
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api/v1";
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:4100/api/v1";
 
 const withParams = (endpoint: string, params: Record<string, string | number>): string => {
   return Object.entries(params).reduce(
@@ -24,6 +24,9 @@ export const adminEndpoints = {
   deleteEvent: (id: string) => withParams(`${BASE_URL}/admin/deleteEvent/:id`, { id }),
   addGenre: `${BASE_URL}/admin/addGenre`,
   removeGenre: (id: string) => withParams(`${BASE_URL}/admin/removeGenre/:id`, { id }),
+  deactivateUser: (id: string) => withParams(`${BASE_URL}/admin/users/:id/deactivate`, { id }),
+  activateUser: (id: string) => withParams(`${BASE_URL}/admin/users/:id/activate`, { id }),
+  getPurchases: `${BASE_URL}/admin/purchases`,
 };
 
 // --------- Genre Endpoints ---------
@@ -70,16 +73,21 @@ export const ticketEndpoints = {
 export const reviewEndpoints = {
   getReview: `${BASE_URL}/review/getReview`,
   createReview: `${BASE_URL}/review/create-review`,
-  deleteReview: ( reviewId: string) =>
-    withParams(`${BASE_URL}/event/:eventId/review/deleteReview/:reviewId`, { reviewId }),
+  deleteReview: (reviewId: string) =>
+    withParams(`${BASE_URL}/review/deleteReview/:reviewId`, { reviewId }),
 };
 
 // --------- Payment Endpoints ---------
 export const paymentEndpoints = {
   createPayment: (ticketId: string) =>
     withParams(`${BASE_URL}/ticket/:ticketId/payment`, { ticketId }),
-  verifyPayment: (ticketId: string) =>
-    withParams(`${BASE_URL}/ticket/:ticketId/payment/verify`, { ticketId }),
   markTicketAsUsed: (ticketId: string, userTicketId: string) =>
     withParams(`${BASE_URL}/ticket/:ticketId/payment/:userTicketId/used`, { ticketId, userTicketId }),
+};
+
+// --------- Identity Endpoints ---------
+export const identityEndpoints = {
+  sendOtp: `${BASE_URL}/identity/send-otp`,
+  verifyOtp: `${BASE_URL}/identity/verify-otp`,
+  getMyIdentities: `${BASE_URL}/identity/my`,
 };

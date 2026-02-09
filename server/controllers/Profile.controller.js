@@ -22,12 +22,12 @@ const getUserProfile = async (req, res) => {
             message: "User profile fetched successfully",
             user: {
                 id: user._id,
-                name: user.name,
+                name: user.fullName,
                 email: user.email,
                 profile: {
-                    Dob: user.profile.Dob,
-                    location: user.profile.location,
-                    genre: user.profile.genre.map((genre) => genre.name),
+                    Dob: user.profile?.Dob,
+                    location: user.profile?.location,
+                    genre: user.profile?.genre ? user.profile.genre.map((genre) => genre.name) : [],
                 },
             },
         });
@@ -70,18 +70,35 @@ const createUserProfile = async (req, res) => {
         //     return res.status(400).json({ message: "At least one field is required" });
         // }
 
-        // Create the profile with only the provided fields
-        const profile = await Profile.create(profileData);
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
 
-        // Update the user with the new profile ID
-        const updatedUser = await User.findByIdAndUpdate(
-            userId,
-            { profile: profile._id },
-            { new: true, runValidators: true }
-        ).populate({
-            path: "profile",
-            populate: { path: "genre" },
-        });
+        let updatedUser;
+        if (user.profile) {
+            await Profile.findByIdAndUpdate(
+                user.profile,
+                profileData,
+                { new: true, runValidators: true }
+            );
+
+            updatedUser = await User.findById(userId).populate({
+                path: "profile",
+                populate: { path: "genre" },
+            });
+        } else {
+            const profile = await Profile.create(profileData);
+
+            updatedUser = await User.findByIdAndUpdate(
+                userId,
+                { profile: profile._id },
+                { new: true, runValidators: true }
+            ).populate({
+                path: "profile",
+                populate: { path: "genre" },
+            });
+        }
 
         if (!updatedUser) {
             return res.status(404).json({ message: "User not found" });
@@ -110,6 +127,7 @@ const getUserEvents = async (req, res) => {
                     model: "Event",
                 }
             })
+            .populate("verifiedIdentityId")
 
             
         if(!userTickets || userTickets.length === 0) {
@@ -118,13 +136,19 @@ const getUserEvents = async (req, res) => {
 
         const events = userTickets.map((ut) =>({
             ticketInfo: {
-                titile: ut.ticketId?.title,
+                title: ut.ticketId?.title,
                 description: ut.ticketId?.description,
                 price: ut.ticketId?.price,
                 quantityBought: ut.quantity,
                 totalPrice: ut.totalPrice,
                 paymentId: ut.paymentId,
                 qrCode: ut.qrCode,
+                verifiedIdentity: ut.verifiedIdentityId ? {
+                    id: ut.verifiedIdentityId._id,
+                    name: ut.verifiedIdentityId.name,
+                    email: ut.verifiedIdentityId.email,
+                    phone: ut.verifiedIdentityId.phone,
+                } : null,
 
             },
             eventInfo:  {
@@ -162,6 +186,7 @@ const getPurchesedTickets = async (req, res) => {
                     match: {endDate : {$gte : now }},
                 }
             })
+            .populate("verifiedIdentityId")
         
         if(!userTickets || userTickets.length === 0) {
             return res.status(404).json({ message: "No tickets found" });
@@ -178,6 +203,12 @@ const getPurchesedTickets = async (req, res) => {
                 totalPrice: ut.totalPrice,
                 paymentId: ut.paymentId,
                 qrCode: ut.qrCode,
+                verifiedIdentity: ut.verifiedIdentityId ? {
+                    id: ut.verifiedIdentityId._id,
+                    name: ut.verifiedIdentityId.name,
+                    email: ut.verifiedIdentityId.email,
+                    phone: ut.verifiedIdentityId.phone,
+                } : null,
             },
             eventInfo: {
                 id: ut.ticketId?.eventId?._id,

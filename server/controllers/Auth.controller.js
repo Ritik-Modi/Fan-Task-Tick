@@ -64,7 +64,7 @@ const sendOtp = async (req, res) => {
     console.log("OTP generated:", otp);
 
     
-    await Otp.create({ email, otp });
+    await Otp.create({ email, otp, purpose: "auth" });
     const body = `
       <h3>Your Fantasktick OTP Code</h3>
       <p>Hello 👋,</p>
@@ -106,7 +106,7 @@ const signUp = async (req, res) => {
       return res.status(400).json({ message: "User already exists" });
     }
 
-    const otpData = await Otp.findOne({ email, otp });
+    const otpData = await Otp.findOne({ email, otp, purpose: "auth" });
     if (!otpData) {
       return res.status(400).json({ success: false, message: "Invalid OTP" });
     }
@@ -163,7 +163,7 @@ const login = async (req, res) => {
         .json({ message: "user not found! please sign up" });
     }
 
-    const otpData = await Otp.findOne({ $or: [{ email }, { phone }], otp });
+    const otpData = await Otp.findOne({ $or: [{ email }, { phone }], otp, purpose: "auth" });
     if (!otpData) {
       return res.status(400).json({ message: "Invalid OTP" });
     }

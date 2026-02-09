@@ -11,6 +11,16 @@ const userTicketSchema = new mongoose.Schema({
     ref: "Ticket",
     required: true,
   },
+  eventId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Event",
+    required: true,
+  },
+  verifiedIdentityId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "VerifiedIdentity",
+    required: true,
+  },
   quantity: {
     type: Number,
     required: true,
@@ -33,6 +43,9 @@ const userTicketSchema = new mongoose.Schema({
   paymentId: {
     type: String,
     required: true,
+  },
+  polarOrderId: {
+    type: String,
   },
   qrCode: {
     type: String,

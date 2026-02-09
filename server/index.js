@@ -13,6 +13,8 @@ import ticketRoutes from "./routes/Ticket.route.js";
 import reviewRoutes from "./routes/Review.route.js";
 import paymentRoutes from "./routes/Payment.route.js";
 import genreRoutes from "./routes/common.route.js";
+import polarRoutes from "./routes/Polar.route.js";
+import identityRoutes from "./routes/Identity.route.js";
 import fileUpload from "express-fileupload";
 
 
@@ -23,7 +25,9 @@ const app = express();
 const PORT = process.env.PORT || 4100;
 connectDB();
 
-app.use(express.json())
+app.use("/api/v1/polar", polarRoutes);
+
+app.use(express.json());
 app.use(cookieParser());
 app.use(cors({
   origin: [
@@ -36,18 +40,6 @@ app.use(cors({
 app.use(fileUpload({ useTempFiles: true }));
 
 
-app.use((req, res, next) => {
-  if (req.method === 'OPTIONS') {
-    res.header('Access-Control-Allow-Origin', 'http://localhost:5173');
-    res.header('Access-Control-Allow-Credentials', 'true');
-    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,PATCH');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    return res.sendStatus(200);
-  }
-  next();
-});
-
-
 
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/admin", adminRoutes);
@@ -57,6 +49,7 @@ app.use("/api/v1/genre", genreRoutes);
 app.use("/api/v1/event/:eventId/ticket", ticketRoutes);
 app.use("/api/v1/review", reviewRoutes);
 app.use("/api/v1/ticket/:ticketId/payment", paymentRoutes);
+app.use("/api/v1/identity", identityRoutes);
 
 
 app.get("/", (req, res) => {
@@ -66,7 +59,10 @@ app.get("/", (req, res) => {
   });
 });
 
-app.use(express.json());
+app.use((err, req, res, next) => {
+  console.error("Unhandled error:", err);
+  res.status(500).json({ success: false, message: "Internal server error" });
+});
 app.listen(PORT, () => {
   console.log(`🚀 Server is running on http://localhost:${PORT}`);
 });

@@ -13,6 +13,7 @@
   "description": "",
   "dependencies": {
     "@emailjs/nodejs": "^5.0.2",
+    "@polar-sh/sdk": "^0.21.3",
     "bcryptjs": "^3.0.2",
     "cloudinary": "^2.6.0",
     "cookie-parser": "^1.4.7",

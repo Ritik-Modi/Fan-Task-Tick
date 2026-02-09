@@ -5,13 +5,13 @@ import {
   getUserEvents,
   getPurchesedTickets
 } from "../controllers/Profile.controller.js";
-import { authMiddleware } from "../middlewares/Auth.middleware.js";
+import { authMiddleware, ensureActiveUser } from "../middlewares/Auth.middleware.js";
 
 const router = Router();
 
-router.get("/getUserProfile",    authMiddleware, getUserProfile);
-router.post("/createUserProfile", authMiddleware, createUserProfile);
-router.get("/getUserEvents",      authMiddleware, getUserEvents);
-router.get("/getPurchesedTickets",authMiddleware, getPurchesedTickets);
+router.get("/getUserProfile",    authMiddleware, ensureActiveUser, getUserProfile);
+router.post("/createUserProfile", authMiddleware, ensureActiveUser, createUserProfile);
+router.get("/getUserEvents",      authMiddleware, ensureActiveUser, getUserEvents);
+router.get("/getPurchesedTickets",authMiddleware, ensureActiveUser, getPurchesedTickets);
 
 export default router;

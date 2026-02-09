@@ -1,5 +1,5 @@
 
-import { authMiddleware, isUser } from '../middlewares/Auth.middleware.js';
+import { authMiddleware, ensureActiveUser, isUser } from '../middlewares/Auth.middleware.js';
 
 
 
@@ -14,9 +14,9 @@ const router = express.Router({ mergeParams: true });
 router.get("/getReview", getReviews);
 
 // POST /api/v1/event/:eventId/review - Create a review for an event
-router.post("/create-review", authMiddleware, createReview);
+router.post("/create-review", authMiddleware, ensureActiveUser, createReview);
 
 // DELETE /api/v1/event/:eventId/review/:reviewId - Delete a review
-router.delete("/deleteReview/:reviewId", authMiddleware, deleteReview);
+router.delete("/deleteReview/:reviewId", authMiddleware, ensureActiveUser, deleteReview);
 
 export default router;

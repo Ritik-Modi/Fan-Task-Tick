@@ -5,6 +5,11 @@ const OtpSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  purpose: {
+    type: String,
+    enum: ["auth", "identity"],
+    default: "auth",
+  },
   otp: {
     type: String,
     required: true,

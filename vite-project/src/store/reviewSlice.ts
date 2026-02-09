@@ -6,6 +6,7 @@ import { reviewEndpoints } from '../services/api';
 interface Review {
   _id: string;
   userId: { _id: string; fullName: string;};
+  eventId?: string;
   review: string;
   rating: number;
   createdAt: string;

@@ -74,8 +74,8 @@ const getEventByDate = async (req, res) => {
         }
 
         const events = await Event.find({
-            startDate: { $gte: start },
-            endDate: { $lte: end },
+            startDate: { $lte: end },
+            endDate: { $gte: start },
         }).populate("genreIds");
 
         if (events.length === 0) {

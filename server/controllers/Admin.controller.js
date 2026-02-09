@@ -6,6 +6,7 @@ import mongoose from "mongoose";
 
 
 import uploadImageToCloudinary from "../utils/uploadImageToCloudinary.js";
+import UserTicket from "../models/UserTicket.model.js";
 
 const createEvent = async (req, res) => {
   try {
@@ -225,10 +226,87 @@ const showAllEvents = async (req, res) => {
   }
 }
 
+const deactivateUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid user ID" });
+    }
+
+    const user = await User.findByIdAndUpdate(
+      id,
+      { status: "suspended" },
+      { new: true }
+    );
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "User suspended",
+      user,
+    });
+  } catch (error) {
+    console.error("Error suspending user:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+const activateUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid user ID" });
+    }
+
+    const user = await User.findByIdAndUpdate(
+      id,
+      { status: "active" },
+      { new: true }
+    );
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "User activated",
+      user,
+    });
+  } catch (error) {
+    console.error("Error activating user:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+const getAllPurchases = async (req, res) => {
+  try {
+    const purchases = await UserTicket.find({ isPaid: true })
+      .populate("userId", "fullName email status")
+      .populate("verifiedIdentityId")
+      .populate({
+        path: "ticketId",
+        populate: { path: "eventId", model: "Event" },
+      });
+
+    res.status(200).json({
+      success: true,
+      purchases,
+    });
+  } catch (error) {
+    console.error("Error fetching purchases:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 export {
   createEvent,
   updateEvent,
   deleteEvent,
   showAllEvents,
+  deactivateUser,
+  activateUser,
+  getAllPurchases,
 
 };

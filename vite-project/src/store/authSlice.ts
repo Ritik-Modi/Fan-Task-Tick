@@ -93,6 +93,7 @@ const authSlice = createSlice({
       state.token = null;
       state.loading = false;
       state.error = null;
+      delete axios.defaults.headers.common['Authorization'];
       localStorage.removeItem('authToken');
       localStorage.removeItem('authUser');
     },
@@ -102,6 +103,7 @@ const authSlice = createSlice({
       if (token && user) {
         state.token = token;
         state.user = JSON.parse(user);
+        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       }
     }
   },
@@ -129,6 +131,7 @@ const authSlice = createSlice({
         state.loading = false;
         state.user = action.payload.user;
         state.token = action.payload.token;
+        axios.defaults.headers.common['Authorization'] = `Bearer ${action.payload.token}`;
         localStorage.setItem('authUser', JSON.stringify(action.payload.user));
         localStorage.setItem('authToken', action.payload.token);
       })
@@ -146,6 +149,7 @@ const authSlice = createSlice({
         state.loading = false;
         state.user = action.payload.user;
         state.token = action.payload.token;
+        axios.defaults.headers.common['Authorization'] = `Bearer ${action.payload.token}`;
         localStorage.setItem('authUser', JSON.stringify(action.payload.user));
         localStorage.setItem('authToken', action.payload.token);
       })
