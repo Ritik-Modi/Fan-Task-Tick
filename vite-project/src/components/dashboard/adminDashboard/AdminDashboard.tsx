@@ -2,7 +2,9 @@ import { useState } from "react";
 import Sidebar from "./Sidebar";
 import DashboardHome from "./DashboardHome";
 import ManageEvents from "./ManageEvent";
-import { LayoutDashboard, CalendarDays } from "lucide-react";
+import Purchases from "./Purchases";
+import SuspiciousUsers from "./SuspiciousUsers";
+import { LayoutDashboard, CalendarDays, ShoppingBag, AlertTriangle } from "lucide-react";
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -10,6 +12,8 @@ export default function AdminDashboard() {
   const sidebarItems = [
     { name: "Dashboard", icon: <LayoutDashboard />, value: "dashboard" },
     { name: "Manage Events", icon: <CalendarDays />, value: "events" },
+    { name: "Purchases", icon: <ShoppingBag />, value: "purchases" },
+    { name: "Risk", icon: <AlertTriangle />, value: "risk" },
   ];
 
   const renderContent = () => {
@@ -18,6 +22,10 @@ export default function AdminDashboard() {
         return <DashboardHome />;
       case "events":
         return <ManageEvents />;
+      case "purchases":
+        return <Purchases />;
+      case "risk":
+        return <SuspiciousUsers />;
       default:
         return <DashboardHome />;
     }

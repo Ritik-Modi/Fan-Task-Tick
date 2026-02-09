@@ -18,11 +18,13 @@ const initialState: PaymentState = {
 };
 
 export const buyTicket = createAsyncThunk('payment/buyTicket', async (
-  { ticketId, quantity, verifiedIdentityId }: { ticketId: string; quantity: number; verifiedIdentityId: string },
+  { ticketId, quantity, verifiedIdentityId }: { ticketId: string; quantity: number; verifiedIdentityId?: string },
   thunkAPI
 ) => {
   try {
-    const res = await axios.post(paymentEndpoints.createPayment(ticketId), { quantity, verifiedIdentityId });
+    const body: any = { quantity };
+    if (verifiedIdentityId) body.verifiedIdentityId = verifiedIdentityId;
+    const res = await axios.post(paymentEndpoints.createPayment(ticketId), body);
     return res.data;
   } catch (error) {
     return thunkAPI.rejectWithValue(handleAxiosError(error));

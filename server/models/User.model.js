@@ -8,6 +8,10 @@ const userSchema = new mongoose.Schema({
   avatar: { type: String, required: true }, // ✅ New field
   profile: { type: mongoose.Schema.Types.ObjectId, ref: "Profile" },
   status: { type: String, enum: ["active", "suspended"], default: "active" },
+  flagged: { type: Boolean, default: false },
+  flagReason: { type: String },
+  riskScore: { type: Number, default: 0 },
+  riskReasons: { type: [String], default: [] },
   createdAt: { type: Date, default: Date.now },
 });
 

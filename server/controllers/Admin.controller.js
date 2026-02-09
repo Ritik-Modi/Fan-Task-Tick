@@ -7,6 +7,7 @@ import mongoose from "mongoose";
 
 import uploadImageToCloudinary from "../utils/uploadImageToCloudinary.js";
 import UserTicket from "../models/UserTicket.model.js";
+import { scoreUserRisk } from "../utils/riskScoring.util.js";
 
 const createEvent = async (req, res) => {
   try {
@@ -300,6 +301,64 @@ const getAllPurchases = async (req, res) => {
   }
 };
 
+const getSuspiciousUsers = async (req, res) => {
+  try {
+    const users = await User.find().select("fullName email status flagged riskScore riskReasons");
+    const results = [];
+
+    for (const user of users) {
+      const { score, reasons } = await scoreUserRisk(user);
+      const recommend = score >= 50 ? "review" : "none";
+      results.push({
+        id: user._id,
+        fullName: user.fullName,
+        email: user.email,
+        status: user.status,
+        flagged: user.flagged,
+        riskScore: score,
+        reasons,
+        recommendation: recommend,
+        summary: recommend === "review" ? "Recommended for review" : "No action",
+      });
+    }
+
+    results.sort((a, b) => b.riskScore - a.riskScore);
+
+    res.status(200).json({
+      success: true,
+      users: results,
+    });
+  } catch (error) {
+    console.error("Error fetching suspicious users:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+const flagUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { reason } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid user ID" });
+    }
+
+    const user = await User.findByIdAndUpdate(
+      id,
+      { flagged: true, flagReason: reason || "Flagged by admin" },
+      { new: true }
+    );
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json({ success: true, user });
+  } catch (error) {
+    console.error("Error flagging user:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 export {
   createEvent,
   updateEvent,
@@ -308,5 +367,7 @@ export {
   deactivateUser,
   activateUser,
   getAllPurchases,
+  getSuspiciousUsers,
+  flagUser,
 
 };

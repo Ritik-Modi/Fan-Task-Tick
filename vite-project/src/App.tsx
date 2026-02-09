@@ -4,6 +4,9 @@ import Events from "./pages/Events.tsx";
 import Contact from "./pages/ContactUs.tsx";
 import Event from "./pages/Event.tsx";
 import TicketPage from "./pages/TicketPage.tsx";
+import Payment from "./pages/Payment.tsx";
+import PaymentSuccess from "./pages/PaymentSuccess.tsx";
+import PaymentCancel from "./pages/PaymentCancel.tsx";
 import { useEffect } from "react";
 import { useAppDispatch } from "@/store/hook";
 import { loadStoredAuth } from "@/store/authSlice";
@@ -32,6 +35,9 @@ function App() {
           <Route path="/events" element={<Events />} />
           <Route path="/events/:id" element={<Event />} />
           <Route path="/ticket/:eventid" element={<TicketPage />} />
+          <Route path="/payment" element={<Payment />} />
+          <Route path="/payment/success" element={<PaymentSuccess />} />
+          <Route path="/payment/cancel" element={<PaymentCancel />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="*" element={<div>404 Not Found</div>} />
           <Route path="/dashboard" element={<Dashboard />} />

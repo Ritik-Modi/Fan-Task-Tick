@@ -27,7 +27,7 @@ export default function DashboardHome() {
   useEffect(() => {
     const fetchData = async () => {
       const { data } = await axios.get(eventEndpoints.getAllEvents);
-      const events = data.events || [];
+      const events = Array.isArray(data) ? data : data.events || [];
 
       const now = new Date();
       const active = events.filter(

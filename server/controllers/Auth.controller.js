@@ -6,6 +6,7 @@ import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import mailSender from "../utils/mailSender.util.js";
 import twilio from "twilio";
+import SecurityEvent from "../models/SecurityEvent.model.js";
 const client = twilio(process.env.TWILIO_SID, process.env.TWILIO_AUTH_TOKEN);
 dotenv.config();
 
@@ -65,6 +66,12 @@ const sendOtp = async (req, res) => {
 
     
     await Otp.create({ email, otp, purpose: "auth" });
+    await SecurityEvent.create({
+      email,
+      type: "auth_otp_requested",
+      ip: req.ip,
+      userAgent: req.headers["user-agent"],
+    });
     const body = `
       <h3>Your Fantasktick OTP Code</h3>
       <p>Hello 👋,</p>

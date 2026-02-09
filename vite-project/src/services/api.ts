@@ -27,6 +27,8 @@ export const adminEndpoints = {
   deactivateUser: (id: string) => withParams(`${BASE_URL}/admin/users/:id/deactivate`, { id }),
   activateUser: (id: string) => withParams(`${BASE_URL}/admin/users/:id/activate`, { id }),
   getPurchases: `${BASE_URL}/admin/purchases`,
+  getSuspiciousUsers: `${BASE_URL}/admin/users/suspicious`,
+  flagUser: (id: string) => withParams(`${BASE_URL}/admin/users/:id/flag`, { id }),
 };
 
 // --------- Genre Endpoints ---------

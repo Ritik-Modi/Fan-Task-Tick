@@ -4,31 +4,56 @@ import Event from "../models/Event.model.js";
 import UserTicket from "../models/UserTicket.model.js";
 import VerifiedIdentity from "../models/VerifiedIdentity.model.js";
 import generateQrCode from "../utils/generateQrCode.js";
+import SecurityEvent from "../models/SecurityEvent.model.js";
+import User from "../models/User.model.js";
 
 const PER_EVENT_IDENTITY_LIMIT = 2;
 
 const createCheckoutSession = async (req, res) => {
   try {
-    const { quantity, verifiedIdentityId } = req.body;
-    const ticketId = req.params.ticketId;
-    const userId = req.user.id;
+  const { quantity, verifiedIdentityId } = req.body;
+  const ticketId = req.params.ticketId;
+  const userId = req.user.id;
 
     const qty = Number(quantity);
     if (!Number.isInteger(qty) || qty <= 0) {
       return res.status(400).json({ message: "Quantity must be a positive integer" });
     }
 
-    if (!verifiedIdentityId) {
-      return res.status(400).json({ message: "verifiedIdentityId is required" });
-    }
-
-    const identity = await VerifiedIdentity.findById(verifiedIdentityId);
+  let identity;
+  if (verifiedIdentityId) {
+    identity = await VerifiedIdentity.findById(verifiedIdentityId);
     if (!identity || String(identity.ownerUserId) !== String(userId)) {
       return res.status(404).json({ message: "Verified identity not found" });
     }
     if (!identity.verifiedAt || identity.status !== "active") {
       return res.status(403).json({ message: "Identity is not verified or is deactivated" });
     }
+  } else {
+    // Default: allow self purchase without verification (uses account email)
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    identity = await VerifiedIdentity.findOne({ email: user.email });
+    if (identity && String(identity.ownerUserId) !== String(userId)) {
+      return res.status(409).json({ message: "Email is already verified by another account" });
+    }
+    if (!identity) {
+      identity = await VerifiedIdentity.create({
+        ownerUserId: userId,
+        name: user.fullName,
+        email: user.email,
+        phone: String(user.phone || ""),
+        verifiedAt: new Date(),
+        status: "active",
+      });
+    } else if (!identity.verifiedAt) {
+      identity.verifiedAt = new Date();
+      identity.status = "active";
+      await identity.save();
+    }
+  }
 
     const ticket = await Ticket.findById(ticketId);
     if (!ticket) {
@@ -54,11 +79,11 @@ const createCheckoutSession = async (req, res) => {
       { $group: { _id: null, total: { $sum: "$quantity" } } },
     ]);
     const totalBought = alreadyPurchased[0]?.total || 0;
-    if (totalBought + qty > PER_EVENT_IDENTITY_LIMIT) {
-      return res.status(400).json({
-        message: `Ticket limit exceeded. Max ${PER_EVENT_IDENTITY_LIMIT} tickets per identity per event.`,
-      });
-    }
+  if (totalBought + qty > PER_EVENT_IDENTITY_LIMIT) {
+    return res.status(400).json({
+      message: `Ticket limit exceeded. Max ${PER_EVENT_IDENTITY_LIMIT} tickets per identity per event.`,
+    });
+  }
 
     const currency = process.env.POLAR_CURRENCY || "usd";
     const totalAmount = Math.round(ticket.price * qty * 100);
@@ -153,6 +178,19 @@ const fulfillPolarOrder = async (order) => {
     paymentId: order.id,
     polarOrderId: order.id,
     qrCode,
+  });
+
+  await SecurityEvent.create({
+    userId,
+    type: "purchase_completed",
+    metadata: {
+      eventId,
+      ticketId,
+      quantity: qty,
+      amount: ticket.price * qty,
+      verifiedIdentityId,
+      polarOrderId: order.id,
+    },
   });
 
   return userTicket;

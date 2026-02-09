@@ -5,7 +5,9 @@ import {
   deleteEvent,
   deactivateUser,
   activateUser,
-  getAllPurchases
+  getAllPurchases,
+  getSuspiciousUsers,
+  flagUser
 } from '../controllers/Admin.controller.js';
 import {
   addGenre,
@@ -29,6 +31,8 @@ router.delete('/removeGenre/:id', authMiddleware, ensureActiveUser, isAdmin, rem
 router.put('/users/:id/deactivate', authMiddleware, ensureActiveUser, isAdmin, deactivateUser);
 router.put('/users/:id/activate', authMiddleware, ensureActiveUser, isAdmin, activateUser);
 router.get('/purchases', authMiddleware, ensureActiveUser, isAdmin, getAllPurchases);
+router.get('/users/suspicious', authMiddleware, ensureActiveUser, isAdmin, getSuspiciousUsers);
+router.post('/users/:id/flag', authMiddleware, ensureActiveUser, isAdmin, flagUser);
 // router.post('/createTicketForEvent', authMiddleware, isAdmin, createTicketForEvent);
 // router.post('/updateTicket',          authMiddleware, isAdmin, updateTicket);
 // router.post('/deleteTicket',          authMiddleware, isAdmin, deleteTicket);

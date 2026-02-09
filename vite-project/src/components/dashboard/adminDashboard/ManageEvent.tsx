@@ -13,7 +13,7 @@ export default function ManageEvents() {
   const fetchEvents = async () => {
     try {
       const { data } = await axios.get(eventEndpoints.getAllEvents);
-      setEvents(data);
+      setEvents(Array.isArray(data) ? data : data.events || []);
     } catch (err) {
       console.error("Failed to fetch events:", err);
     }

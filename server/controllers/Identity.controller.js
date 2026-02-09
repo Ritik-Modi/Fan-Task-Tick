@@ -2,6 +2,7 @@ import otpGenerator from "otp-generator";
 import VerifiedIdentity from "../models/VerifiedIdentity.model.js";
 import Otp from "../models/Otp.model.js";
 import mailSender from "../utils/mailSender.util.js";
+import SecurityEvent from "../models/SecurityEvent.model.js";
 
 const generateOtp = async () => {
   let otp, isDuplicate;
@@ -45,7 +46,7 @@ const sendIdentityOtp = async (req, res) => {
 
     await VerifiedIdentity.findOneAndUpdate(
       { email },
-      { name, phone, ownerUserId },
+      { name, phone, ownerUserId, createdIp: req.ip, createdUserAgent: req.headers["user-agent"] },
       { upsert: true, new: true }
     );
 
@@ -60,6 +61,14 @@ const sendIdentityOtp = async (req, res) => {
     `;
 
     await mailSender(email, "Identity Verification OTP", body);
+
+    await SecurityEvent.create({
+      userId: ownerUserId,
+      email,
+      type: "identity_otp_requested",
+      ip: req.ip,
+      userAgent: req.headers["user-agent"],
+    });
 
     return res.status(200).json({ success: true, message: "OTP sent successfully" });
   } catch (error) {
@@ -91,6 +100,15 @@ const verifyIdentityOtp = async (req, res) => {
     if (!identity) {
       return res.status(404).json({ message: "Identity not found" });
     }
+
+    await SecurityEvent.create({
+      userId: ownerUserId,
+      email,
+      type: "identity_verified",
+      ip: req.ip,
+      userAgent: req.headers["user-agent"],
+      metadata: { identityId: identity._id },
+    });
 
     return res.status(200).json({ success: true, message: "Identity verified", identity });
   } catch (error) {

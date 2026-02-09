@@ -9,6 +9,8 @@ const verifiedIdentitySchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   phone: { type: String, required: true },
+  createdIp: { type: String },
+  createdUserAgent: { type: String },
   verifiedAt: { type: Date },
   status: { type: String, enum: ["active", "deactivated"], default: "active" },
   createdAt: { type: Date, default: Date.now },
