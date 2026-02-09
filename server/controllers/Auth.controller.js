@@ -78,7 +78,11 @@ const sendOtp = async (req, res) => {
       <p>Your OTP code is: <strong>${otp}</strong></p>
       <p>This code will expire in 5 minutes.</p>
     `;
-    await mailSender(email, "Your OTP Code", body);
+    if (process.env.SKIP_EMAIL === "true") {
+      console.log("SKIP_EMAIL enabled. OTP for", email, "is", otp);
+    } else {
+      await mailSender(email, "Your OTP Code", body);
+    }
 
 
     // if (phone) {

@@ -60,7 +60,11 @@ const sendIdentityOtp = async (req, res) => {
       <p>This code will expire in 5 minutes.</p>
     `;
 
-    await mailSender(email, "Identity Verification OTP", body);
+    if (process.env.SKIP_EMAIL === "true") {
+      console.log("SKIP_EMAIL enabled. Identity OTP for", email, "is", otp);
+    } else {
+      await mailSender(email, "Identity Verification OTP", body);
+    }
 
     await SecurityEvent.create({
       userId: ownerUserId,

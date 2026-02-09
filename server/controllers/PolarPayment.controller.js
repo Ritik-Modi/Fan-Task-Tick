@@ -85,11 +85,8 @@ const createCheckoutSession = async (req, res) => {
     });
   }
 
-    const currency = process.env.POLAR_CURRENCY || "usd";
-    const totalAmount = Math.round(ticket.price * qty * 100);
-
-    const session = await polar.checkout.create({
-      productId: process.env.POLAR_PRODUCT_ID,
+    const session = await polar.checkouts.create({
+      products: [process.env.POLAR_PRODUCT_ID],
       successUrl: process.env.POLAR_SUCCESS_URL,
       returnUrl: process.env.POLAR_RETURN_URL,
       externalCustomerId: String(userId),
@@ -102,13 +99,6 @@ const createCheckoutSession = async (req, res) => {
         verifiedIdentityId: String(identity._id),
         userId: String(userId),
       },
-      prices: [
-        {
-          amountType: "fixed",
-          priceAmount: totalAmount,
-          priceCurrency: currency,
-        },
-      ],
     });
 
     return res.status(200).json({
